@@ -18,6 +18,11 @@ type Config struct {
 	DB_Name     string
 }
 
+func Init() {
+	InitDB()
+	InitMigrate()
+}
+
 func InitDB() {
 	config := Config{
 		DB_Username: "root",
@@ -27,7 +32,7 @@ func InitDB() {
 		DB_Name:     "pongpedia_golang",
 	}
 
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
 		config.DB_Username,
 		config.DB_Password,
 		config.DB_Host,
@@ -41,8 +46,6 @@ func InitDB() {
 	if err != nil {
 		panic(err)
 	}
-
-	InitMigrate()
 }
 
 func InitMigrate() {

@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func LoginUserController(c echo.Context) error {
+func LoginController(c echo.Context) error {
 	users := models.User{}
 	c.Bind(&users)
 
