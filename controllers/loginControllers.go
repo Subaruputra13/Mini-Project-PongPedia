@@ -22,7 +22,7 @@ func LoginController(c echo.Context) error {
 		})
 	}
 
-	token, err := m.CreateToken(int(users.ID), users.Nama, users.Role)
+	token, err := m.CreateToken(int(users.ID), users.Username, users.Role)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -31,7 +31,7 @@ func LoginController(c echo.Context) error {
 		})
 	}
 
-	userResponse := models.UserReponse{ID: users.ID, Nama: users.Nama, Email: users.Email, Token: token}
+	userResponse := models.UserReponse{ID: users.ID, Email: users.Email, Token: token}
 
 	return c.JSON(http.StatusOK, models.Response{
 		Message: "Login Succes!",

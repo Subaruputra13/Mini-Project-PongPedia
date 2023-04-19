@@ -7,10 +7,10 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func CreateToken(userId int, nama, role string) (string, error) {
+func CreateToken(userId int, username, role string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["user_id"] = userId
-	claims["nama"] = nama
+	claims["username"] = username
 	claims["role_type"] = role
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 

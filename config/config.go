@@ -50,6 +50,5 @@ func InitDB() {
 
 func InitMigrate() {
 	// Migrate the schema
-	DB.AutoMigrate(&models.User{}, &models.Player{})
-
+	DB.AutoMigrate(&models.User{}, &models.Player{}, &models.Turnament{})
 }

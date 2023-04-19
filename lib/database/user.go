@@ -80,7 +80,7 @@ func DeleteUserById(id any) (interface{}, error) {
 func LoginUser(users models.User) (models.User, error) {
 
 	// mendefinisikan query untuk mengambil data user berdasarkan nama dan password (SELECT * FROM users WHERE nama = ? AND password = ?)
-	if err := config.DB.Where("nama = ? AND password = ?", users.Nama, users.Password).First(&users).Error; err != nil {
+	if err := config.DB.Where("email = ? AND password = ?", users.Email, users.Password).First(&users).Error; err != nil {
 		return models.User{}, err
 	}
 

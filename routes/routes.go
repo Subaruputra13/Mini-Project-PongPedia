@@ -32,5 +32,9 @@ func New() *echo.Echo {
 	p.GET("", controllers.GetPlayerControllers)
 	p.POST("", controllers.CreatePlayerControllers)
 
+	t := e.Group("/turnament")
+	t.GET("", controllers.GetTurnamentControllers)
+	t.POST("", controllers.CreateTurnamentControllers)
+
 	return e
 }
