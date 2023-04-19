@@ -21,14 +21,14 @@ func New() *echo.Echo {
 	e.POST("/login", controllers.LoginController)
 
 	// Route Untuk user
-	u := e.Group("/user")
+	u := e.Group("/users")
 	u.GET("", controllers.GetUserControllers)
 	u.GET("/:role", controllers.GetUserByRoleControllers)
 	u.PUT("/:id", controllers.UpdateUserByIdControllers)
 	u.DELETE("/:id", controllers.DeteleUserByIdControllers)
 
 	// Route Untuk player
-	p := e.Group("/player")
+	p := e.Group("/players")
 	p.GET("", controllers.GetPlayerControllers)
 	p.POST("", controllers.CreatePlayerControllers)
 
