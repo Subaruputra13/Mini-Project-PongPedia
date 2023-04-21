@@ -6,12 +6,12 @@ import (
 )
 
 func main() {
-	// Inisialisasi Database
+	// Inisialisasi Databases
 	config.Init()
 
-	// Inisialisasi Echo dari package routes
+	// Inisialisasi Echo dari package routess
 	e := routes.New()
 
-	// Run Server
+	// Run Servers
 	e.Logger.Fatal(e.Start(":8080"))
 }
