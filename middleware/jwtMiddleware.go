@@ -7,6 +7,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+// Create Token Jwt
 func CreateToken(userId int, username, role string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["user_id"] = userId

@@ -1,6 +1,7 @@
 package models
 
-type Response struct {
+// Struct Response
+type Responses struct {
 	Message string
 	Data    interface{}
 }

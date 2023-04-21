@@ -18,7 +18,7 @@ func GetUserControllers(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, models.Response{
+	return c.JSON(http.StatusOK, models.Responses{
 		Message: "Succes get user!",
 		Data:    users,
 	})
@@ -37,7 +37,7 @@ func GetUserByIdControllers(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, models.Response{
+	return c.JSON(http.StatusOK, models.Responses{
 		Message: "Succes get user by Id",
 		Data:    users,
 	})
@@ -61,7 +61,7 @@ func UpdateUserByIdControllers(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, models.Response{
+	return c.JSON(http.StatusOK, models.Responses{
 		Message: "Succes Update user by Id",
 		Data:    users,
 	})
@@ -80,7 +80,7 @@ func DeteleUserByIdControllers(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, models.Response{
+	return c.JSON(http.StatusOK, models.Responses{
 		Message: "Success Delete user by id",
 	})
 }
@@ -107,7 +107,7 @@ func CreateUserControllers(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, models.Response{
+	return c.JSON(http.StatusOK, models.Responses{
 		Message: "Succes Create data",
 		Data:    users,
 	})
