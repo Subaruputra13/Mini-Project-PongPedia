@@ -25,20 +25,20 @@ func GetUserControllers(c echo.Context) error {
 }
 
 // Controllers untuk mengambil data user berdasarkan role
-func GetUserByRoleControllers(c echo.Context) error {
+func GetUserByIdControllers(c echo.Context) error {
 
 	// membuat variable userRole dengan parameter role yang dikirim dari client
-	userRole := c.Param("role")
+	userId := c.Param("id")
 
 	// memanggil fungsi GetUserByRole() yang ada di package database
-	users, err := database.GetUserByRole(userRole)
+	users, err := database.GetUserById(userId)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, models.Response{
-		Message: "Succes get user by role",
+		Message: "Succes get user by Id",
 		Data:    users,
 	})
 }
@@ -92,6 +92,13 @@ func CreateUserControllers(c echo.Context) error {
 
 	// mengambil data dari client dan memasukkannya ke variable users
 	c.Bind(&users)
+
+	// Validate Require
+	if err := c.Validate(users); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"Message": "Field tidak boleh kosong !",
+		})
+	}
 
 	// memanggil fungsi CreateUser() yang ada di package database
 	users, err := database.CreateUser(users)

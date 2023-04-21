@@ -3,7 +3,9 @@ package routes
 import (
 	"PongPedia/controllers"
 	m "PongPedia/middleware"
+	"PongPedia/models"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	mid "github.com/labstack/echo/v4/middleware"
 )
@@ -16,25 +18,19 @@ func New() *echo.Echo {
 	m.LogMiddleware(e)
 	e.Pre(mid.RemoveTrailingSlash())
 
-	// Route
+	//Validator Require
+	e.Validator = &models.CustomValidator{Validators: validator.New()}
+
+	// Route Login and Register
 	e.POST("/register", controllers.CreateUserControllers)
 	e.POST("/login", controllers.LoginController)
 
 	// Route Untuk user
 	u := e.Group("/users")
 	u.GET("", controllers.GetUserControllers)
-	u.GET("/:role", controllers.GetUserByRoleControllers)
+	u.GET("/:id", controllers.GetUserByIdControllers)
 	u.PUT("/:id", controllers.UpdateUserByIdControllers)
 	u.DELETE("/:id", controllers.DeteleUserByIdControllers)
-
-	// Route Untuk player
-	p := e.Group("/players")
-	p.GET("", controllers.GetPlayerControllers)
-	p.POST("", controllers.CreatePlayerControllers)
-
-	t := e.Group("/turnament")
-	t.GET("", controllers.GetTurnamentControllers)
-	t.POST("", controllers.CreateTurnamentControllers)
 
 	return e
 }
