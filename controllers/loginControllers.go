@@ -6,7 +6,7 @@ import (
 	"PongPedia/models"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 )
 
 func LoginController(c echo.Context) error {

@@ -1,13 +1,14 @@
 package routes
 
 import (
+	"PongPedia/constants"
 	"PongPedia/controllers"
 	m "PongPedia/middleware"
 	"PongPedia/models"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/labstack/echo/v4"
-	mid "github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo"
+	mid "github.com/labstack/echo/middleware"
 )
 
 func New() *echo.Echo {
@@ -27,10 +28,10 @@ func New() *echo.Echo {
 
 	// Route Untuk user
 	u := e.Group("/users")
-	u.GET("", controllers.GetUserControllers)
-	u.GET("/:id", controllers.GetUserByIdControllers)
-	u.PUT("/:id", controllers.UpdateUserByIdControllers)
-	u.DELETE("/:id", controllers.DeteleUserByIdControllers)
+	u.GET("", controllers.GetUserControllers, mid.JWT([]byte(constants.SCREAT_JWT)), m.IsAdmin)
+	u.GET("/:id", controllers.GetUserByIdControllers, mid.JWT([]byte(constants.SCREAT_JWT)), m.IsAdmin)
+	u.PUT("/:id", controllers.UpdateUserByIdControllers, mid.JWT([]byte(constants.SCREAT_JWT)), m.IsAdmin)
+	u.DELETE("/:id", controllers.DeteleUserByIdControllers, mid.JWT([]byte(constants.SCREAT_JWT)), m.IsAdmin)
 
 	return e
 }
