@@ -5,7 +5,7 @@ import (
 	"PongPedia/models"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 )
 
 // Controllers untuk mengambil data user
@@ -93,11 +93,9 @@ func CreateUserControllers(c echo.Context) error {
 	// mengambil data dari client dan memasukkannya ke variable users
 	c.Bind(&users)
 
-	// Validate Require
+	// Validate Required
 	if err := c.Validate(users); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"Message": "Field tidak boleh kosong !",
-		})
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	// memanggil fungsi CreateUser() yang ada di package database
