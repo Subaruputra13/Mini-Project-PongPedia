@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 )
 
 // Create Token Jwt
@@ -20,6 +20,7 @@ func CreateToken(userId int, username, role string) (string, error) {
 
 	return token.SignedString([]byte(constants.SCREAT_JWT))
 }
+
 func IsAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		user := c.Get("user").(*jwt.Token)
