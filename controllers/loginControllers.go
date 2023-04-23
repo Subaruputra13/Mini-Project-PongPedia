@@ -6,7 +6,7 @@ import (
 	"PongPedia/models"
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 )
 
 func LoginController(c echo.Context) error {
@@ -42,7 +42,7 @@ func LoginController(c echo.Context) error {
 
 	userResponse := models.UserReponse{ID: users.ID, Username: users.Username, Email: users.Email, Token: token}
 
-	return c.JSON(http.StatusOK, models.Response{
+	return c.JSON(http.StatusOK, models.Responses{
 		Message: "Login Succes!",
 		Data:    userResponse,
 	})
