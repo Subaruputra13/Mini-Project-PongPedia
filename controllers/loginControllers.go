@@ -14,11 +14,11 @@ func LoginController(c echo.Context) error {
 
 	c.Bind(&users)
 
-	// Validate Require
-	if users.Email == "" && users.Password == "" {
-		return c.JSON(http.StatusBadRequest, "Field Tidak Boleh Kosong !")
-	} else if users.Email == "" || users.Password == "" {
-		return c.JSON(http.StatusBadRequest, "Field Username atau Password Tidak Boleh Kosong !")
+	// Validate Required
+	if users.Username == "" {
+		c.Validate(&users)
+	} else {
+		return c.JSON(http.StatusBadRequest, "Error Can't Handler")
 	}
 
 	// Memanggil Fungsi LoginUser() yang ada di package database
@@ -32,6 +32,9 @@ func LoginController(c echo.Context) error {
 	}
 
 	token, err := m.CreateToken(int(users.ID), users.Username, users.Role)
+
+	// Create Cookie
+	m.CreateCookie(c, token)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{

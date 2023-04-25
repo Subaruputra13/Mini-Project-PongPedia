@@ -6,7 +6,14 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
+
+var IsLoggedIn = middleware.JWTWithConfig(middleware.JWTConfig{
+	SigningMethod: "HS256",
+	SigningKey:    []byte(constants.SCREAT_JWT),
+	TokenLookup:   "cookie:JWTCookie",
+})
 
 // Create Token Jwt
 func CreateToken(userId int, username, role string) (string, error) {

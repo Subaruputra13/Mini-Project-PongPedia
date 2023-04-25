@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"PongPedia/constants"
 	"PongPedia/controllers"
 	m "PongPedia/middleware"
 	"PongPedia/models"
@@ -19,7 +18,7 @@ func New() *echo.Echo {
 	m.LogMiddleware(e)
 	e.Pre(mid.RemoveTrailingSlash())
 
-	//Validator Require
+	// Validator Require
 	e.Validator = &models.CustomValidator{Validators: validator.New()}
 
 	// Route Login and Register
@@ -28,10 +27,20 @@ func New() *echo.Echo {
 
 	// Route Untuk user
 	u := e.Group("/users")
-	u.GET("", controllers.GetUserControllers, mid.JWT([]byte(constants.SCREAT_JWT)), m.IsAdmin)
-	u.GET("/:id", controllers.GetUserByIdControllers, mid.JWT([]byte(constants.SCREAT_JWT)), m.IsAdmin)
-	u.PUT("/:id", controllers.UpdateUserByIdControllers, mid.JWT([]byte(constants.SCREAT_JWT)), m.IsAdmin)
-	u.DELETE("/:id", controllers.DeteleUserByIdControllers, mid.JWT([]byte(constants.SCREAT_JWT)), m.IsAdmin)
+	u.GET("", controllers.GetUserControllers, m.IsLoggedIn, m.IsAdmin)
+	u.GET("/:id", controllers.GetUserByIdControllers, m.IsLoggedIn, m.IsAdmin)
+	u.PUT("/:id", controllers.UpdateUserByIdControllers, m.IsLoggedIn, m.IsAdmin)
+	u.DELETE("/:id", controllers.DeteleUserByIdControllers, m.IsLoggedIn, m.IsAdmin)
+
+	// Route untuk Player
+	p := e.Group("/players")
+	p.GET("", controllers.GetPlayersControllers, m.IsLoggedIn)
+	p.POST("", controllers.CreatePlayersControllers, m.IsLoggedIn)
+
+	// Route untuk Turnament
+	t := e.Group("/turnaments")
+	t.GET("", controllers.GetAllTurnamentControllers, m.IsLoggedIn)
+	t.POST("", controllers.CreateTurnamentControllers, m.IsLoggedIn, m.IsAdmin)
 
 	return e
 }

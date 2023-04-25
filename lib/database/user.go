@@ -3,9 +3,6 @@ package database
 import (
 	"PongPedia/config"
 	"PongPedia/models"
-	"net/http"
-
-	"github.com/labstack/echo/v4"
 )
 
 // Get All User
@@ -14,7 +11,7 @@ func GetUser() ([]models.User, error) {
 	users := []models.User{}
 
 	// mendefinisikan qeuery untuk mengambil semua data user
-	err := config.DB.Find(&users).Error
+	err := config.DB.Preload("Player").Find(&users).Error
 
 	if err != nil {
 		return []models.User{}, err
@@ -41,25 +38,6 @@ func GetUserById(id any) (models.User, error) {
 
 // Create User
 func CreateUser(user models.User) (models.User, error) {
-	// //Validate Unique Data
-	result := config.DB.Where("username = ? AND email = ? AND password = ?", user.Username, user.Email, user.Password).First(&user)
-	if result.RowsAffected > 0 {
-		return models.User{}, echo.NewHTTPError(http.StatusBadRequest, "User ini sudah tersedia !")
-	}
-	result = config.DB.Where("username = ?", user.Username).Find(&user)
-	if result.RowsAffected > 0 {
-		return models.User{}, echo.NewHTTPError(http.StatusBadRequest, " Username Sudah tersedia")
-	}
-
-	result = config.DB.Where("email = ?", user.Email).Find(&user)
-	if result.RowsAffected > 0 {
-		return models.User{}, echo.NewHTTPError(http.StatusBadRequest, " Email Sudah tersedia")
-	}
-
-	result = config.DB.Where("password = ?", user.Password).Find(&user)
-	if result.RowsAffected > 0 {
-		return models.User{}, echo.NewHTTPError(http.StatusBadRequest, " Password Sudah tersedia")
-	}
 
 	// medefinisikan query untuk membuat data user(INSERT INTO users)
 	err := config.DB.Create(&user).Error
