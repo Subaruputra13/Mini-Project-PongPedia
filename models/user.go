@@ -10,12 +10,22 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string `json:"username" form:"username" validate:"required"`
-	Email    string `json:"email" form:"email" validate:"required,email"`
-	Password string `json:"password" form:"password" validate:"required"`
-	Role     string `json:"role" form:"role" gorm:"type:enum('ADMIN', 'PLAYER');default:'PLAYER'; not-null"`
+	Username string         `json:"username" form:"username" validate:"required" gorm:"unique"`
+	Email    string         `json:"email" form:"email" validate:"required,email" gorm:"unique"`
+	Password string         `json:"password" form:"password" validate:"required" gorm:"unique"`
+	Role     string         `json:"role" form:"role" gorm:"type:enum('ADMIN', 'PLAYER');default:'PLAYER'; not-null"`
+	Player   PlayerResponse `json:"player" gorm:"foreignKey:UserID"`
 }
 
+// Only for response
+type UserResponses struct {
+	gorm.Model
+	Username string `json:"username" form:"username"`
+	Email    string `json:"email" form:"email"`
+	Role     string `json:"role" form:"role"`
+}
+
+// Only for response Token
 type UserReponse struct {
 	ID       uint   `json:"id" form:"id"`
 	Username string `json:"username" form:"username"`
@@ -35,4 +45,8 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	}
 
 	return nil
+}
+
+func (UserResponses) TableName() string {
+	return "users"
 }
