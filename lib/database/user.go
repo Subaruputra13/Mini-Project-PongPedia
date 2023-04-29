@@ -22,33 +22,16 @@ func GetUser() ([]models.User, error) {
 }
 
 // Get All User By Role
-func GetUserById(id any) (models.User, error) {
-	// membuat variable users dengan tipe data Slice dari struct User
-	users := models.User{}
+func GetUserByRole(role any) ([]models.User, error) {
+	users := []models.User{}
 
-	// mendefinisikan qeuery untuk mengambil semua data user dengan role tertentu
-	err := config.DB.Where("id = ?", id).First(&users).Error
+	err := config.DB.Where("role = ?", role).Find(&users).Error
 
 	if err != nil {
-		return models.User{}, err
+		return []models.User{}, err
 	}
 
 	return users, err
-}
-
-// Create User
-func CreateUser(user models.User) (models.User, error) {
-
-	// medefinisikan query untuk membuat data user(INSERT INTO users)
-	err := config.DB.Create(&user).Error
-
-	if err != nil {
-		return models.User{}, err
-
-	}
-
-	return user, nil
-
 }
 
 // Update User By Id
@@ -76,16 +59,4 @@ func DeleteUserById(id any) (interface{}, error) {
 	}
 
 	return "Success Delete User by id", nil
-}
-
-// Login User
-func LoginUser(users models.User) (models.User, error) {
-	// mendefinisikan query untuk mengambil data user berdasarkan nama dan password (SELECT * FROM users WHERE nama = ? AND password = ?)
-	err := config.DB.Where("email = ? AND password = ?", users.Email, users.Password).First(&users).Error
-
-	if err != nil {
-		return models.User{}, err
-	}
-
-	return users, nil
 }

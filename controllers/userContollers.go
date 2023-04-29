@@ -24,21 +24,36 @@ func GetUserControllers(c echo.Context) error {
 	})
 }
 
-// Controllers untuk mengambil data user berdasarkan role
-func GetUserByIdControllers(c echo.Context) error {
+// // Controllers untuk mengambil data user berdasarkan role
+// func GetUserByIdControllers(c echo.Context) error {
 
-	// membuat variable userRole dengan parameter role yang dikirim dari client
-	userId := c.Param("id")
+// 	// membuat variable userRole dengan parameter role yang dikirim dari client
+// 	userId := c.Param("id")
 
-	// memanggil fungsi GetUserByRole() yang ada di package database
-	users, err := database.GetUserById(userId)
+// 	// memanggil fungsi GetUserByRole() yang ada di package database
+// 	users, err := database.GetUserById(userId)
+
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, err.Error())
+// 	}
+
+// 	return c.JSON(http.StatusOK, models.Responses{
+// 		Message: "Succes get user by Id",
+// 		Data:    users,
+// 	})
+// }
+
+func GetUserByRoleControllers(c echo.Context) error {
+	roleId := c.Param("role")
+
+	users, err := database.GetUserByRole(roleId)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, models.Responses{
-		Message: "Succes get user by Id",
+		Message: "Succes Get User By Role",
 		Data:    users,
 	})
 }
@@ -82,31 +97,5 @@ func DeteleUserByIdControllers(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, models.Responses{
 		Message: "Success Delete user by id",
-	})
-}
-
-// Controllers untuk membuat data user
-func CreateUserControllers(c echo.Context) error {
-	// membuat variable users dengan tipe data struct User dari package models
-	users := models.User{}
-
-	// mengambil data dari client dan memasukkannya ke variable users
-	c.Bind(&users)
-
-	// Validate Required
-	if err := c.Validate(users); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	// memanggil fungsi CreateUser() yang ada di package database
-	users, err := database.CreateUser(users)
-
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(http.StatusOK, models.Responses{
-		Message: "Succes Create data",
-		Data:    users,
 	})
 }

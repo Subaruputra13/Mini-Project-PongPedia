@@ -15,14 +15,27 @@ func LoginController(c echo.Context) error {
 	c.Bind(&users)
 
 	// Validate Required
-	if users.Username == "" {
-		c.Validate(&users)
-	} else {
-		return c.JSON(http.StatusBadRequest, "Error Can't Handler")
+	if users.Username == "" && users.Password == "" {
+		if users.Email == "" && users.Password == "" {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"Message": "Field is Required",
+			})
+		}
 	}
 
-	// Memanggil Fungsi LoginUser() yang ada di package database
-	users, err := database.LoginUser(users)
+	if users.Username == "" && users.Email == "" {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"Message": "Username or Email is Required",
+		})
+	}
+
+	if users.Password == "" {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"Message": "Password is Required",
+		})
+	}
+
+	users, err := database.Login(users)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -31,6 +44,7 @@ func LoginController(c echo.Context) error {
 		})
 	}
 
+	// Crete Token
 	token, err := m.CreateToken(int(users.ID), users.Username, users.Role)
 
 	// Create Cookie
@@ -48,5 +62,32 @@ func LoginController(c echo.Context) error {
 	return c.JSON(http.StatusOK, models.Responses{
 		Message: "Login Succes!",
 		Data:    userResponse,
+	})
+}
+
+// Controllers untuk membuat data user
+func RegisterControllers(c echo.Context) error {
+
+	users := models.User{}
+
+	c.Bind(&users)
+
+	// Validate Required
+	if users.Username == "" || users.Email == "" || users.Password == "" {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"Message": "Username, Email and Password is Required",
+		})
+	}
+
+	// memanggil fungsi CreateUser() yang ada di package database
+	users, err := database.Register(users)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, models.Responses{
+		Message: "Succes Create data",
+		Data:    users,
 	})
 }

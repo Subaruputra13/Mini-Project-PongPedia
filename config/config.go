@@ -44,11 +44,15 @@ func InitDB() {
 	DB, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{TranslateError: true})
 
 	if err != nil {
-		panic(err)
+		panic("Failed to connect to database")
 	}
 }
 
 func InitMigrate() {
 	// Migrate the schema
-	DB.AutoMigrate(&models.User{}, &models.Turnament{}, &models.Player{})
+	err := DB.AutoMigrate(&models.User{}, &models.Player{}, &models.Turnament{}, &models.Match{})
+
+	if err != nil {
+		panic("Failed to migrate database")
+	}
 }
