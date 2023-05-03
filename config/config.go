@@ -18,12 +18,7 @@ type Config struct {
 	DB_Name     string
 }
 
-func Init() {
-	InitDB()
-	InitMigrate()
-}
-
-func InitDB() {
+func InitDB() *gorm.DB {
 	config := Config{
 		DB_Username: "alta",
 		DB_Password: "root",
@@ -48,11 +43,15 @@ func InitDB() {
 	if err != nil {
 		panic("Failed to connect to database")
 	}
+
+	InitMigrate()
+
+	return DB
 }
 
 func InitMigrate() {
 	// Migrate the schema
-	err := DB.AutoMigrate(&models.User{}, &models.Player{}, &models.Turnament{}, &models.Participation{}, &models.Match{})
+	err := DB.AutoMigrate(&models.User{}, &models.Player{})
 
 	if err != nil {
 		panic("Failed to migrate database")
