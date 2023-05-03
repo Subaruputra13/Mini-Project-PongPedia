@@ -2,45 +2,46 @@ package database
 
 import (
 	"PongPedia/config"
+	m "PongPedia/middleware"
 	"PongPedia/models"
+
+	"github.com/labstack/echo"
 )
 
-// Get All User
-func GetUser() ([]models.User, error) {
+// Get User
+func GetUser(c echo.Context) (models.User, error) {
 	// membuat variable users dengan tipe data Slice dari struct User
-	users := []models.User{}
+	var users models.User
 
-	// mendefinisikan qeuery untuk mengambil semua data user
-	err := config.DB.Preload("Player").Find(&users).Error
+	id := m.Auth(c)
 
-	if err != nil {
-		return []models.User{}, err
+	if err := config.DB.Where("id = ?", id).Preload("Player").First(&users).Error; err != nil {
+		return models.User{}, err
 	}
 
-	return users, err
-
+	return users, nil
 }
 
-// Get All User By Role
-func GetUserByRole(role any) ([]models.User, error) {
-	users := []models.User{}
+// Update User
+func UpdateUser(c echo.Context) (models.User, error) {
 
-	err := config.DB.Where("role = ?", role).Find(&users).Error
+	var users models.User
 
-	if err != nil {
-		return []models.User{}, err
+	username := c.Param("username")
+
+	id := m.Auth(c)
+
+	if err := config.DB.Where("id = ? AND username = ?", id, username).First(&users).Error; err != nil {
+		return models.User{}, err
 	}
 
-	return users, err
-}
+	c.Bind(&users)
 
-// Update User By Id
-func UpdateUserById(users models.User, id any) (models.User, error) {
+	if err := c.Validate(&users); err != nil {
+		return models.User{}, err
+	}
 
-	// mendefinisikan query untuk mengupdate data user berdasarkan id (UPDATE users SET ... WHERE id = ?)
-	err := config.DB.Where("id = ?", id).Updates(&users).Error
-
-	if err != nil {
+	if err := config.DB.Where("id = ? AND username = ?", id, username).Updates(&users).Error; err != nil {
 		return models.User{}, err
 	}
 
@@ -48,15 +49,27 @@ func UpdateUserById(users models.User, id any) (models.User, error) {
 
 }
 
-// Delete User By Id
-func DeleteUserById(id any) (interface{}, error) {
+func DeleteUser(c echo.Context) (models.User, error) {
 
-	// mendefinisikan query untuk menghapus data user berdasarkan id (DELETE FROM users WHERE id = ?)
-	err := config.DB.Where("id = ?", id).Delete(&models.User{}).Error
+	var users models.User
 
-	if err != nil {
-		return nil, err
+	username := c.Param("username")
+
+	id := m.Auth(c)
+
+	password := c.FormValue("Password")
+
+	if err := config.DB.Where("id = ? AND username = ?", id, username).First(&users).Error; err != nil {
+		return models.User{}, echo.NewHTTPError(400, "Unauthorize")
 	}
 
-	return "Success Delete User by id", nil
+	if err := config.DB.Where("id = ? AND password = ?", id, password).First(&users).Error; err != nil {
+		return models.User{}, echo.NewHTTPError(400, "Wrong password !")
+	}
+
+	if err := config.DB.Where("id = ?", id).Delete(&users).Error; err != nil {
+		return models.User{}, err
+	}
+
+	return users, nil
 }

@@ -1,32 +1,14 @@
 package routes
 
 import (
-	"PongPedia/constants"
 	"PongPedia/controllers"
 	m "PongPedia/middleware"
+	"PongPedia/models"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	mid "github.com/labstack/echo/middleware"
 )
-
-var IsLoggedIn = mid.JWTWithConfig(mid.JWTConfig{
-	SigningMethod: "HS256",
-	SigningKey:    []byte(constants.SCREAT_JWT),
-	TokenLookup:   "cookie:JWTCookie",
-})
-
-func IsAdmin(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		user := c.Get("user").(*jwt.Token)
-		claims := user.Claims.(jwt.MapClaims)
-		IsAdmin := claims["role_type"].(string)
-		if IsAdmin == "PLAYER" {
-			return echo.ErrUnauthorized
-		}
-		return next(c)
-	}
-}
 
 func New() *echo.Echo {
 	// Inisialisasi Echo
@@ -36,33 +18,31 @@ func New() *echo.Echo {
 	m.LogMiddleware(e)
 	e.Pre(mid.RemoveTrailingSlash())
 
-	// Route Login and Register
+	// Validator
+	e.Validator = &models.CustomValidator{Validator: validator.New()}
+
+	// Route Login and Register and Logout
 	e.POST("/register", controllers.RegisterControllers)
 	e.POST("/login", controllers.LoginController)
+	e.POST("/logout", controllers.LogoutControllers)
 
-	// // Route Untuk User
-	// u := e.Group("/users")
-	// u.GET("", controllers.GetUserControllers, IsLoggedIn)
-	// u.GET("/:role", controllers.GetUserByRoleControllers, IsLoggedIn, IsAdmin)
-	// u.PUT("/:id", controllers.UpdateUserByIdControllers, IsLoggedIn)
-	// u.DELETE("/:id", controllers.DeteleUserByIdControllers, IsLoggedIn)
+	// Route Home
+	e.GET("/", controllers.GetAllTurnamentControllers)
 
-	// // Route untuk Player
-	// p := e.Group("/players")
-	// p.GET("", controllers.GetPlayersControllers, IsLoggedIn)
-	// p.POST("", controllers.CreatePlayersControllers, IsLoggedIn)
+	// Route User Profile
+	e.GET("/profile", controllers.GetUserControllers, m.IsLoggedIn)
+	e.GET("/profile/turnament", controllers.MyTurnamentControllers, m.IsLoggedIn)
+	e.PUT("/:username/profile-update", controllers.UpdateUserControllers, m.IsLoggedIn)
+	e.DELETE("/:username/profile-delete", controllers.DeteleUserControllers, m.IsLoggedIn)
 
-	// // Route untuk Turnament
-	// t := e.Group("/turnaments")
-	// t.POST("", controllers.CreateTurnamentControllers, IsLoggedIn, IsAdmin)
-	// t.POST("/:id/register", controllers.RegisterTurnamentControllers, IsLoggedIn)
+	// Routue Player
+	// e.PUT("/player", controllers.CreatePlayersControllers, m.IsLoggedIn)
+	e.PUT("/player-edit", controllers.CreatePlayersControllers, m.IsLoggedIn)
 
-	// // Route untuk Match
-	// m := e.Group("/matchs")
-	// m.GET("", controllers.GetAllMatchControllers)
-	// m.GET("/:id/result", controllers.GetMatchByIdControllers)
-	// m.POST("", controllers.CreateMatchControllers, IsLoggedIn, IsAdmin)
-	// m.PUT("/:id", controllers.UpdateMatchControllers, IsLoggedIn, IsAdmin)
+	//Routes Turnament
+	e.GET("/turnaments/:id", controllers.GetTurnamentDetailControllers)
+	e.POST("/turnaments", controllers.CreateTurnamentControllers)
+	e.POST("/turnaments/:id/register", controllers.RegisterTurnamentControllers, m.IsLoggedIn)
 
 	return e
 }

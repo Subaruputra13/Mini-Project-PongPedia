@@ -6,11 +6,11 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string `json:"username" form:"username" gorm:"unique"`
-	Email    string `json:"email" form:"email" gorm:"unique"`
-	Password string `json:"password" form:"password" gorm:"unique"`
+	Username string `json:"username" form:"username" gorm:"unique" validate:"required"`
+	Email    string `json:"email" form:"email" gorm:"unique" validate:"required"`
+	Password string `json:"password" form:"password" gorm:"unique" validate:"required"`
 	Role     string `json:"role" form:"role" gorm:"type:enum('ADMIN', 'PLAYER');default:'PLAYER'; not-null"`
-	Player   Player `json:"player" gorm:"foreignKey:UserID"`
+	Player   Player
 }
 
 // Only for response Token

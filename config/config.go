@@ -25,10 +25,10 @@ func Init() {
 
 func InitDB() {
 	config := Config{
-		DB_Username: "root",
+		DB_Username: "alta",
 		DB_Password: "root",
 		DB_Port:     "3306",
-		DB_Host:     "localhost",
+		DB_Host:     "192.168.1.6",
 		DB_Name:     "pongpedia_golang",
 	}
 
@@ -41,7 +41,9 @@ func InitDB() {
 	)
 
 	var err error
-	DB, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{TranslateError: true})
+	DB, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
+		TranslateError: true,
+	})
 
 	if err != nil {
 		panic("Failed to connect to database")
@@ -50,7 +52,7 @@ func InitDB() {
 
 func InitMigrate() {
 	// Migrate the schema
-	err := DB.AutoMigrate(&models.User{}, &models.Player{}, &models.Turnament{}, &models.Match{})
+	err := DB.AutoMigrate(&models.User{}, &models.Player{}, &models.Turnament{}, &models.Participation{}, &models.Match{})
 
 	if err != nil {
 		panic("Failed to migrate database")
