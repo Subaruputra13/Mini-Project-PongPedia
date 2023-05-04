@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	m "PongPedia/middleware"
 	"PongPedia/models"
 	"PongPedia/models/payload"
 	"PongPedia/repository/database"
@@ -9,39 +10,50 @@ import (
 	"github.com/labstack/echo"
 )
 
-type UserController interface {
+type AuthController interface {
 	LoginUserController(c echo.Context) error
 	RegisterUserController(c echo.Context) error
 }
 
-type userControler struct {
-	userUsacase    usecase.UserUsecase
+type authControler struct {
+	authUsecase    usecase.AuthUsecase
+	authRepository database.AuthRepository
 	userRepository database.UserRepository
 }
 
-func NewUserController(
-	userUsecase usecase.UserUsecase,
+func NewAuthController(
+	authUsecase usecase.AuthUsecase,
+	authRepository database.AuthRepository,
 	userRepository database.UserRepository,
-) *userControler {
-	return &userControler{userUsecase, userRepository}
+) *authControler {
+	return &authControler{
+		authUsecase,
+		authRepository,
+		userRepository,
+	}
 }
 
-func (u *userControler) LoginUserController(c echo.Context) error {
+func (a *authControler) LoginUserController(c echo.Context) error {
 	request := payload.LoginRequest{}
 
 	if err := c.Bind(&request); err != nil {
 		return echo.NewHTTPError(400, "Invalid Request")
 	}
 
-	if err := c.Validate(&request); err != nil {
+	if err := c.Validate(request); err != nil {
 		return echo.NewHTTPError(400, "Invalid Request")
 	}
 
-	user, err := u.userUsacase.LoginUser(request.Email, request.Password, "PLAYER")
+	user := models.User{
+		Email:    request.Email,
+		Password: request.Password,
+	}
 
-	if err != nil {
+	if err := a.authUsecase.LoginUser(&user); err != nil {
 		return echo.NewHTTPError(400, err.Error())
 	}
+
+	m.CreateCookie(c, user.Token)
 
 	userResponse := payload.LoginResponse{Email: user.Email, Token: user.Token}
 
@@ -51,17 +63,13 @@ func (u *userControler) LoginUserController(c echo.Context) error {
 	})
 }
 
-func (u *userControler) RegisterUserController(c echo.Context) error {
+func (a *authControler) RegisterUserController(c echo.Context) error {
 	request := payload.RegisterRequest{}
 
 	c.Bind(&request)
 
 	if err := c.Validate(&request); err != nil {
 		return echo.NewHTTPError(400, "Invalid Request")
-	}
-
-	if _, err := u.userRepository.GetuserByEmail(request.Email); err == nil {
-		return echo.NewHTTPError(400, "Email Already Registered")
 	}
 
 	user := models.User{
@@ -71,8 +79,8 @@ func (u *userControler) RegisterUserController(c echo.Context) error {
 		Role:     request.Role,
 	}
 
-	if err := u.userUsacase.CreateUser(&user); err != nil {
-		return echo.NewHTTPError(400, "Failed to Register User")
+	if err := a.userRepository.CreateUser(&user); err != nil {
+		return echo.NewHTTPError(400, err.Error())
 	}
 
 	userResponse := payload.RegisterResponse{Username: user.Username, Email: user.Email, Password: user.Password, Role: user.Role}
