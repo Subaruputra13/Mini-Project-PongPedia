@@ -4,17 +4,15 @@ import (
 	"PongPedia/constants"
 	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	mid "github.com/labstack/echo/middleware"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
 var IsLoggedIn = mid.JWTWithConfig(mid.JWTConfig{
 	SigningMethod: "HS256",
 	SigningKey:    []byte(constants.SCREAT_JWT),
-	TokenLookup:   "cookie:JWTCookie",
-	AuthScheme:    "user",
 })
 
 // Create Token Jwt
@@ -30,32 +28,26 @@ func CreateToken(userId int, role string) (string, error) {
 	return token.SignedString([]byte(constants.SCREAT_JWT))
 }
 
-func Auth(c echo.Context) int {
-	cookie, _ := c.Cookie("JWTCookie")
-	token, _ := jwt.Parse(cookie.Value, nil)
-	claims := token.Claims.(jwt.MapClaims)
-	userId := int(claims["user_id"].(float64))
-
-	return userId
-
-}
-
 func IsAdmin(c echo.Context) (int, error) {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	if claims["role_type"] != "admin" {
+	if claims["role_type"] != constants.ADMIN {
 		return 0, echo.NewHTTPError(401, "Unauthorized")
 	}
-
-	return 0, nil
+	userId := int(claims["user_id"].(float64))
+	return userId, nil
 }
 
 func IsUser(c echo.Context) (int, error) {
 	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	if claims["role_type"] != "player" {
+	if !user.Valid {
 		return 0, echo.NewHTTPError(401, "Unauthorized")
 	}
+	claims := user.Claims.(jwt.MapClaims)
+	if claims["role_type"] != constants.PLAYER {
+		return 0, echo.NewHTTPError(401, "Unauthorized")
+	}
+	userId := int(claims["user_id"].(float64))
 
-	return 0, nil
+	return userId, nil
 }

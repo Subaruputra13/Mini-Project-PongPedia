@@ -9,7 +9,6 @@ import (
 
 type AuthRepository interface {
 	LoginUser(user *models.User) error
-	CheckEmail(email string) (*models.User, error)
 }
 
 type authRepository struct {
@@ -18,16 +17,6 @@ type authRepository struct {
 
 func NewAuthRepository(db *gorm.DB) *authRepository {
 	return &authRepository{db}
-}
-
-func (a *authRepository) CheckEmail(email string) (*models.User, error) {
-	var user models.User
-
-	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
-	}
-
-	return &user, nil
 }
 
 func (a *authRepository) LoginUser(user *models.User) error {

@@ -3,40 +3,62 @@ package usecase
 import (
 	"PongPedia/middleware"
 	"PongPedia/models"
+	"PongPedia/models/payload"
 	"PongPedia/repository/database"
 
 	"github.com/labstack/echo"
 )
 
 type AuthUsecase interface {
-	LoginUser(user *models.User) error
+	LoginUser(req *payload.LoginRequest) (res payload.LoginResponse, err error)
 }
 
 type authUsecase struct {
 	authRepository database.AuthRepository
+	userRepository database.UserRepository
 }
 
-func NewAuthUsecase(authRepository database.AuthRepository) *authUsecase {
-	return &authUsecase{authRepository}
+func NewAuthUsecase(
+	authRepository database.AuthRepository,
+	userRepository database.UserRepository,
+) *authUsecase {
+	return &authUsecase{authRepository, userRepository}
 }
 
 // Logic for login user
-func (a *authUsecase) LoginUser(user *models.User) error {
-	if _, err := a.authRepository.CheckEmail(user.Email); err != nil {
-		return echo.NewHTTPError(400, "Email not registered")
+func (a *authUsecase) LoginUser(req *payload.LoginRequest) (res payload.LoginResponse, err error) {
+	userReq := &models.User{
+		Email:    req.Email,
+		Password: req.Password,
 	}
 
-	if err := a.authRepository.LoginUser(user); err != nil {
-		return echo.NewHTTPError(400, "Wrong password")
-	}
-
-	token, err := middleware.CreateToken(int(user.ID), user.Role)
+	_, err = a.userRepository.GetuserByEmail(userReq.Email)
 
 	if err != nil {
-		return echo.NewHTTPError(400, "Failed to generate token")
+		echo.NewHTTPError(400, "Email not registered")
+		return
 	}
 
-	user.Token = token
+	err = a.authRepository.LoginUser(userReq)
 
-	return nil
+	if err != nil {
+		echo.NewHTTPError(400, "Wrong password")
+		return
+	}
+
+	token, err := middleware.CreateToken(int(userReq.ID), userReq.Role)
+
+	if err != nil {
+		echo.NewHTTPError(400, "Failed to generate token")
+		return
+	}
+
+	userReq.Token = token
+
+	res = payload.LoginResponse{
+		Email: userReq.Email,
+		Token: userReq.Token,
+	}
+
+	return
 }
