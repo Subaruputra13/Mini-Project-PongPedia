@@ -2,7 +2,6 @@ package controllers
 
 import (
 	m "PongPedia/middleware"
-	"PongPedia/models"
 	"PongPedia/models/payload"
 	"PongPedia/repository/database"
 	"PongPedia/usecase"
@@ -11,8 +10,8 @@ import (
 )
 
 type PlayerController interface {
+	GetPlayerController(c echo.Context) error
 	CreatePlayerController(c echo.Context) error
-	UpdatePlayerController(c echo.Context) error
 }
 
 type playerController struct {
@@ -28,7 +27,7 @@ func NewPlayerController(
 }
 
 func (p *playerController) GetPlayerController(c echo.Context) error {
-	id := m.Auth(c)
+	id, _ := m.IsUser(c)
 
 	player, err := p.playerUsecase.GetPlayer(id)
 
@@ -43,73 +42,47 @@ func (p *playerController) GetPlayerController(c echo.Context) error {
 }
 
 func (p *playerController) CreatePlayerController(c echo.Context) error {
-	request := payload.CreateUpdatePlayerRequest{}
+	req := payload.CreateUpdatePlayerRequest{}
 
-	c.Bind(&request)
+	c.Bind(&req)
 
-	id := m.Auth(c)
+	id, _ := m.IsUser(c)
 
-	if err := c.Validate(&request); err != nil {
+	if err := c.Validate(&req); err != nil {
 		return echo.NewHTTPError(400, "Field cannot be empty")
 	}
 
-	player := models.Player{
-		Name:      request.Name,
-		Age:       request.Age,
-		BirthDate: request.BirthDate,
-		Gender:    request.Gender,
-		UserID:    id,
+	res, err := p.playerUsecase.CreatePlayer(id, &req)
+
+	if err != nil {
+		return echo.NewHTTPError(400, err.Error())
 	}
 
-	if _, err := p.playerUsecase.CreatePlayer(id, &player); err != nil {
-		return echo.NewHTTPError(400, "failed to update user")
-	}
-
-	playerResponse := payload.PlayerResponse{
-		Name:      player.Name,
-		Age:       player.Age,
-		BirthDate: player.BirthDate,
-		Gender:    player.Gender,
-	}
-
-	return c.JSON(200, payload.Response{
+	return c.JSON(201, payload.Response{
 		Message: "Success update user",
-		Data:    playerResponse,
+		Data:    res,
 	})
 }
 
-// Controllers for player
 func (p *playerController) UpdatePlayerController(c echo.Context) error {
-	request := payload.CreateUpdatePlayerRequest{}
+	req := payload.CreateUpdatePlayerRequest{}
 
-	c.Bind(&request)
+	c.Bind(&req)
 
-	id := m.Auth(c)
+	id, _ := m.IsUser(c)
 
-	if err := c.Validate(&request); err != nil {
+	if err := c.Validate(&req); err != nil {
 		return echo.NewHTTPError(400, "Field cannot be empty")
 	}
 
-	player := models.Player{
-		Name:      request.Name,
-		Age:       request.Age,
-		BirthDate: request.BirthDate,
-		Gender:    request.Gender,
-	}
+	res, err := p.playerUsecase.UpdatePlayer(id, &req)
 
-	if _, err := p.playerUsecase.UpdatePlayer(id, &player); err != nil {
+	if err != nil {
 		return echo.NewHTTPError(400, "failed to update user")
-	}
-
-	playerResponse := payload.PlayerResponse{
-		Name:      player.Name,
-		Age:       player.Age,
-		BirthDate: player.BirthDate,
-		Gender:    player.Gender,
 	}
 
 	return c.JSON(200, payload.Response{
 		Message: "Success update user",
-		Data:    playerResponse,
+		Data:    res,
 	})
 }

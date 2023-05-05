@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	m "PongPedia/middleware"
-	"PongPedia/models"
 	"PongPedia/models/payload"
 	"PongPedia/repository/database"
 	"PongPedia/usecase"
@@ -18,76 +16,62 @@ type AuthController interface {
 type authControler struct {
 	authUsecase    usecase.AuthUsecase
 	authRepository database.AuthRepository
-	userRepository database.UserRepository
+	userUsecase    usecase.UserUsecase
 }
 
 func NewAuthController(
 	authUsecase usecase.AuthUsecase,
 	authRepository database.AuthRepository,
-	userRepository database.UserRepository,
+	userUsecase usecase.UserUsecase,
 ) *authControler {
 	return &authControler{
 		authUsecase,
 		authRepository,
-		userRepository,
+		userUsecase,
 	}
 }
 
 func (a *authControler) LoginUserController(c echo.Context) error {
-	request := payload.LoginRequest{}
+	req := payload.LoginRequest{}
 
-	if err := c.Bind(&request); err != nil {
-		return echo.NewHTTPError(400, "Invalid Request")
-	}
-
-	if err := c.Validate(request); err != nil {
-		return echo.NewHTTPError(400, "Invalid Request")
-	}
-
-	user := models.User{
-		Email:    request.Email,
-		Password: request.Password,
-	}
-
-	if err := a.authUsecase.LoginUser(&user); err != nil {
+	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(400, err.Error())
 	}
 
-	m.CreateCookie(c, user.Token)
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(400, "Field cannot be empty")
+	}
 
-	userResponse := payload.LoginResponse{Email: user.Email, Token: user.Token}
+	res, err := a.authUsecase.LoginUser(&req)
+
+	if err != nil {
+		return echo.NewHTTPError(400, err.Error())
+	}
 
 	return c.JSON(200, payload.Response{
 		Message: "Success Login",
-		Data:    userResponse,
+		Data:    res,
 	})
 }
 
 func (a *authControler) RegisterUserController(c echo.Context) error {
-	request := payload.RegisterRequest{}
+	req := payload.RegisterRequest{}
 
-	c.Bind(&request)
+	c.Bind(&req)
 
-	if err := c.Validate(&request); err != nil {
+	if err := c.Validate(&req); err != nil {
 		return echo.NewHTTPError(400, "Invalid Request")
 	}
 
-	user := models.User{
-		Username: request.Username,
-		Email:    request.Email,
-		Password: request.Password,
-		Role:     request.Role,
-	}
+	res, err := a.userUsecase.CreateUser(&req)
 
-	if err := a.userRepository.CreateUser(&user); err != nil {
+	if err != nil {
 		return echo.NewHTTPError(400, err.Error())
 	}
 
-	userResponse := payload.RegisterResponse{Username: user.Username, Email: user.Email, Password: user.Password, Role: user.Role}
-
 	return c.JSON(200, payload.Response{
 		Message: "Success Register User",
-		Data:    userResponse,
+		Data:    res,
 	})
 
 }
