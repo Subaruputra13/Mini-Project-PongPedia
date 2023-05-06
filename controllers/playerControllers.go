@@ -11,7 +11,7 @@ import (
 
 type PlayerController interface {
 	GetPlayerController(c echo.Context) error
-	CreatePlayerController(c echo.Context) error
+	UpdatePlayerController(c echo.Context) error
 }
 
 type playerController struct {
@@ -41,52 +41,6 @@ func (p *playerController) GetPlayerController(c echo.Context) error {
 	})
 }
 
-<<<<<<< Updated upstream
-func (p *playerController) CreatePlayerController(c echo.Context) error {
-	req := payload.CreateUpdatePlayerRequest{}
-
-	c.Bind(&req)
-
-	id, _ := m.IsUser(c)
-
-	if err := c.Validate(&req); err != nil {
-		return echo.NewHTTPError(400, "Field cannot be empty")
-	}
-
-	res, err := p.playerUsecase.CreatePlayer(id, &req)
-
-	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
-	}
-
-	return c.JSON(201, payload.Response{
-		Message: "Success update user",
-		Data:    res,
-	})
-}
-
-func (p *playerController) UpdatePlayerController(c echo.Context) error {
-	req := payload.CreateUpdatePlayerRequest{}
-
-	c.Bind(&req)
-
-	id, _ := m.IsUser(c)
-
-	if err := c.Validate(&req); err != nil {
-		return echo.NewHTTPError(400, "Field cannot be empty")
-	}
-
-	res, err := p.playerUsecase.UpdatePlayer(id, &req)
-
-	if err != nil {
-		return echo.NewHTTPError(400, "failed to update user")
-	}
-
-	return c.JSON(200, payload.Response{
-		Message: "Success update user",
-<<<<<<< HEAD
-		Data:    playerResponse,
-=======
 func (p *playerController) UpdatePlayerController(c echo.Context) error {
 	req := payload.CreateUpdatePlayerRequest{}
 
@@ -106,9 +60,5 @@ func (p *playerController) UpdatePlayerController(c echo.Context) error {
 
 	return c.JSON(200, map[string]interface{}{
 		"message": "Success update user",
->>>>>>> Stashed changes
-=======
-		Data:    res,
->>>>>>> 281244cbd6c5e8c17cd2e03889eadb3996cf8ff1
 	})
 }

@@ -8,21 +8,8 @@ import (
 )
 
 type PlayerRespository interface {
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-	CreatePlayerWithCookie(id int, player *models.Player) error
-	UpdatePlayerWithCookie(id int, player *models.Player) error
-	ReadToken(id int) (*models.User, error)
-	GetPlayerWithCookie(id int) (*models.Player, error)
-=======
 	UpdatePlayer(player *models.Player) error
 	GetPlayerId(id int) (*models.Player, error)
->>>>>>> Stashed changes
-=======
-	CreatePlayer(player *models.Player) error
-	UpdatePlayer(player *models.Player) error
-	GetPlayerId(id int) (*models.Player, error)
->>>>>>> 281244cbd6c5e8c17cd2e03889eadb3996cf8ff1
 }
 
 type playerRespository struct {
@@ -42,28 +29,6 @@ func (p *playerRespository) GetPlayerId(id int) (*models.Player, error) {
 
 	return &player, nil
 }
-
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-func (p *playerRespository) CreatePlayerWithCookie(id int, player *models.Player) error {
-=======
-func (p *playerRespository) CreatePlayer(player *models.Player) error {
->>>>>>> 281244cbd6c5e8c17cd2e03889eadb3996cf8ff1
-
-	if err := config.DB.Save(&player).Error; err != nil {
-		return err
-	}
-	return nil
-}
-=======
-// func (p *playerRespository) CreatePlayer(player *models.Player) error {
-
-// 	if err := config.DB.Save(&player).Error; err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
->>>>>>> Stashed changes
 
 func (p *playerRespository) UpdatePlayer(player *models.Player) error {
 
