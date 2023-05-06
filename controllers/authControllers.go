@@ -36,6 +36,7 @@ func NewAuthController(
 func (a *authControler) LoginUserController(c echo.Context) error {
 	request := payload.LoginRequest{}
 
+<<<<<<< Updated upstream
 	if err := c.Bind(&request); err != nil {
 		return echo.NewHTTPError(400, "Invalid Request")
 	}
@@ -52,6 +53,9 @@ func (a *authControler) LoginUserController(c echo.Context) error {
 	if err := a.authUsecase.LoginUser(&user); err != nil {
 		return echo.NewHTTPError(400, err.Error())
 	}
+=======
+	c.Bind(&req)
+>>>>>>> Stashed changes
 
 	m.CreateCookie(c, user.Token)
 

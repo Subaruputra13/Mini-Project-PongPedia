@@ -51,7 +51,11 @@ func (u *userController) UpdateUserController(c echo.Context) error {
 
 	id := m.Auth(c)
 
+<<<<<<< Updated upstream
 	c.Bind(&request)
+=======
+	c.Bind(&req)
+>>>>>>> Stashed changes
 
 	if err := c.Validate(&request); err != nil {
 		return echo.NewHTTPError(400, "Field cannot be empty")

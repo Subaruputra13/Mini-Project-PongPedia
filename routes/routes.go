@@ -42,7 +42,6 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 
 	pp := e.Group("/profile/player", m.IsLoggedIn)
 	pp.GET("", playerController.GetPlayerController)
-	pp.POST("", playerController.CreatePlayerController)
 	pp.PUT("", playerController.UpdatePlayerController)
 
 }

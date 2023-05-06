@@ -36,7 +36,7 @@ func (u *userRepository) GetAlltUser() (user []models.User, err error) {
 func (u *userRepository) GetUseByIdWithCookie(id int) (*models.User, error) {
 	var user models.User
 
-	if err := config.DB.Where("id = ?", id).Preload("Player").First(&user).Error; err != nil {
+	if err := config.DB.Where("id = ?", id).Preload("Player.Participation").First(&user).Error; err != nil {
 		return nil, err
 	}
 

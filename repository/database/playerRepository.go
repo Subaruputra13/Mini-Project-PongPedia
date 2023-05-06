@@ -8,10 +8,15 @@ import (
 )
 
 type PlayerRespository interface {
+<<<<<<< Updated upstream
 	CreatePlayerWithCookie(id int, player *models.Player) error
 	UpdatePlayerWithCookie(id int, player *models.Player) error
 	ReadToken(id int) (*models.User, error)
 	GetPlayerWithCookie(id int) (*models.Player, error)
+=======
+	UpdatePlayer(player *models.Player) error
+	GetPlayerId(id int) (*models.Player, error)
+>>>>>>> Stashed changes
 }
 
 type playerRespository struct {
@@ -42,6 +47,7 @@ func (p *playerRespository) GetPlayerWithCookie(id int) (*models.Player, error) 
 	return &player, nil
 }
 
+<<<<<<< Updated upstream
 func (p *playerRespository) CreatePlayerWithCookie(id int, player *models.Player) error {
 
 	if err := config.DB.Model(&player).Where("user_id = ?", id).Save(&models.Player{
@@ -55,6 +61,15 @@ func (p *playerRespository) CreatePlayerWithCookie(id int, player *models.Player
 	}
 	return nil
 }
+=======
+// func (p *playerRespository) CreatePlayer(player *models.Player) error {
+
+// 	if err := config.DB.Save(&player).Error; err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
+>>>>>>> Stashed changes
 
 func (p *playerRespository) UpdatePlayerWithCookie(id int, player *models.Player) error {
 

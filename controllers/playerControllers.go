@@ -42,6 +42,7 @@ func (p *playerController) GetPlayerController(c echo.Context) error {
 	})
 }
 
+<<<<<<< Updated upstream
 func (p *playerController) CreatePlayerController(c echo.Context) error {
 	request := payload.CreateUpdatePlayerRequest{}
 
@@ -111,5 +112,26 @@ func (p *playerController) UpdatePlayerController(c echo.Context) error {
 	return c.JSON(200, payload.Response{
 		Message: "Success update user",
 		Data:    playerResponse,
+=======
+func (p *playerController) UpdatePlayerController(c echo.Context) error {
+	req := payload.CreateUpdatePlayerRequest{}
+
+	c.Bind(&req)
+
+	id, _ := m.IsUser(c)
+
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(400, "Field cannot be empty")
+	}
+
+	err := p.playerUsecase.UpdatePlayer(id, &req)
+
+	if err != nil {
+		return echo.NewHTTPError(400, "failed to update user")
+	}
+
+	return c.JSON(200, map[string]interface{}{
+		"message": "Success update user",
+>>>>>>> Stashed changes
 	})
 }
