@@ -25,3 +25,15 @@ type CreateUpdatePlayerRequest struct {
 	Gender    string `json:"gender" form:"gender" validate:"required"`
 	UserID    int    `json:"user_id" form:"user_id"`
 }
+
+type TurnamentRequest struct {
+	Name      string `json:"name" form:"name" validate:"required"`
+	StartDate string `json:"start_date" form:"start_date" validate:"required"`
+	EndDate   string `json:"end_date" form:"end_date" validate:"required"`
+	Location  string `json:"location" form:"location" validate:"required"`
+}
+
+type RegisterTurnamentRequest struct {
+	PlayerID    int `json:"player_id" form:"player_id"`
+	TurnamentID int `json:"turnament_id" form:"turnament_id" validate:"required"`
+}

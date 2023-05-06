@@ -2,7 +2,6 @@ package controllers
 
 import (
 	m "PongPedia/middleware"
-	"PongPedia/models"
 	"PongPedia/models/payload"
 	"PongPedia/repository/database"
 	"PongPedia/usecase"
@@ -32,7 +31,7 @@ func NewUserController(
 
 func (u *userController) GetUserController(c echo.Context) error {
 
-	id := m.Auth(c)
+	id, _ := m.IsUser(c)
 
 	user, err := u.userUsecase.GetUserById(id)
 
@@ -47,46 +46,45 @@ func (u *userController) GetUserController(c echo.Context) error {
 }
 
 func (u *userController) UpdateUserController(c echo.Context) error {
-	request := payload.UpdateUserRequest{}
+	req := payload.UpdateUserRequest{}
 
-	id := m.Auth(c)
+	id, _ := m.IsUser(c)
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 	c.Bind(&request)
 =======
 	c.Bind(&req)
 >>>>>>> Stashed changes
+=======
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(400, "Failed to bind user")
+	}
+>>>>>>> 281244cbd6c5e8c17cd2e03889eadb3996cf8ff1
 
-	if err := c.Validate(&request); err != nil {
+	if err := c.Validate(&req); err != nil {
 		return echo.NewHTTPError(400, "Field cannot be empty")
 	}
 
-	user := models.User{
-		Username: request.Username,
-		Email:    request.Email,
-		Password: request.Password,
-	}
-
-	if err := u.userUsecase.UpdateUser(id, &user); err != nil {
+	res, err := u.userUsecase.UpdateUser(id, &req)
+	if err != nil {
 		return echo.NewHTTPError(400, "failed to update user")
 	}
 
 	return c.JSON(200, payload.Response{
 		Message: "Success update user",
-		Data:    user,
+		Data:    res,
 	})
 }
 
 func (u *userController) DeleteUserController(c echo.Context) error {
-	id := m.Auth(c)
+	id, _ := m.IsUser(c)
 
 	password := c.FormValue("Password")
 
-	if _, err := u.userRepository.DeleteUser(id, password); err != nil {
+	if err := u.userUsecase.DeleteUser(id, password); err != nil {
 		return echo.NewHTTPError(400, "Wrong Password !")
 	}
-
-	m.DeleteCookie(c)
 
 	return c.JSON(200, "Succes Delete User")
 }

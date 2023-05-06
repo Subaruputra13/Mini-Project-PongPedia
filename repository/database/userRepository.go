@@ -8,13 +8,13 @@ import (
 )
 
 type UserRepository interface {
-	GetAlltUser() (user []models.User, err error)
+	ReadToken(id int) (user *models.User, err error)
+	GetUser() (user []models.User, err error)
 	GetuserByEmail(email string) (*models.User, error)
-	GetUseByIdWithCookie(id int) (*models.User, error)
-	UpdateUserWithCookie(id int, user *models.User) error
+	GetUseById(id int) (*models.User, error)
+	UpdateUser(user *models.User) error
 	CreateUser(user *models.User) error
-	ReadToken(id int) (*models.User, error)
-	DeleteUser(id int, password string) (user *models.User, err error)
+	DeleteUser(user *models.User) error
 }
 
 type userRepository struct {
@@ -23,9 +23,21 @@ type userRepository struct {
 
 func NewUserRepository(db *gorm.DB) *userRepository {
 	return &userRepository{db}
+
 }
 
-func (u *userRepository) GetAlltUser() (user []models.User, err error) {
+func (u *userRepository) ReadToken(id int) (user *models.User, err error) {
+
+	err = config.DB.Where("id = ?", id).First(&user).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (u *userRepository) GetUser() (user []models.User, err error) {
 	if err := config.DB.Preload("Player").Find(&user).Error; err != nil {
 		return nil, err
 	}
@@ -33,7 +45,7 @@ func (u *userRepository) GetAlltUser() (user []models.User, err error) {
 	return user, nil
 }
 
-func (u *userRepository) GetUseByIdWithCookie(id int) (*models.User, error) {
+func (u *userRepository) GetUseById(id int) (*models.User, error) {
 	var user models.User
 
 	if err := config.DB.Where("id = ?", id).Preload("Player.Participation").First(&user).Error; err != nil {
@@ -43,19 +55,9 @@ func (u *userRepository) GetUseByIdWithCookie(id int) (*models.User, error) {
 	return &user, nil
 }
 
-func (u *userRepository) ReadToken(id int) (*models.User, error) {
-	var user models.User
+func (u *userRepository) UpdateUser(user *models.User) error {
 
-	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
-func (u *userRepository) UpdateUserWithCookie(id int, user *models.User) error {
-
-	if err := config.DB.Where("id = ?", id).Updates(&user).Error; err != nil {
+	if err := config.DB.Updates(&user).Error; err != nil {
 		return err
 	}
 
@@ -80,15 +82,11 @@ func (u *userRepository) CreateUser(user *models.User) error {
 	return nil
 }
 
-func (u *userRepository) DeleteUser(id int, password string) (user *models.User, err error) {
+func (u *userRepository) DeleteUser(user *models.User) error {
 
-	if err := config.DB.Where("id = ? AND password = ?", id, password).First(&user).Error; err != nil {
-		return nil, err
+	if err := config.DB.Delete(&user).Error; err != nil {
+		return err
 	}
 
-	if err := config.DB.Where("id = ?", id).Delete(&user).Error; err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return nil
 }
