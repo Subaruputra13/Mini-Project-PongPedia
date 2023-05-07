@@ -4,6 +4,7 @@ import (
 	"PongPedia/models"
 	"PongPedia/models/payload"
 	"PongPedia/repository/database"
+	"errors"
 
 	"github.com/labstack/echo"
 	"golang.org/x/crypto/bcrypt"
@@ -51,17 +52,6 @@ func (u *userUsecase) GetUserById(id int) (res payload.ProfileResponse, err erro
 	return res, nil
 }
 
-// // Logic for get user with cookie
-// func (u *userUsecase) GetUserById(id int) (*models.User, error) {
-// 	user, err := u.userRepository.GetUseById(id)
-
-// 	if err != nil {
-// 		return nil, echo.NewHTTPError(400, "Failed to get user")
-// 	}
-
-// 	return user, nil
-// }
-
 // Logic for update user
 func (u *userUsecase) UpdateUser(id int, req *payload.UpdateUserRequest) (res payload.UpdateUserRequest, err error) {
 	userReq := &models.User{
@@ -106,7 +96,7 @@ func (u *userUsecase) CreateUser(reqs *payload.RegisterRequest) error {
 
 	err = u.userRepository.CreateUser(userReq)
 	if err != nil {
-		return echo.NewHTTPError(400, "Failed to create user")
+		return errors.New(err.Error())
 	}
 
 	return nil

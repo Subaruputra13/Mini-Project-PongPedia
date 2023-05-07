@@ -2,6 +2,7 @@ package config
 
 import (
 	"PongPedia/models"
+	"PongPedia/repository/seeder"
 	"fmt"
 
 	"gorm.io/driver/mysql"
@@ -45,6 +46,7 @@ func InitDB() *gorm.DB {
 	}
 
 	InitMigrate()
+	seeder.DBSeed(DB)
 
 	return DB
 }

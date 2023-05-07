@@ -11,6 +11,7 @@ import (
 
 type MatchController interface {
 	GetMatchController(c echo.Context) error
+	GetMatchByIdController(c echo.Context) error
 }
 
 type matchController struct {
@@ -50,42 +51,4 @@ func (m *matchController) GetMatchByIdController(c echo.Context) error {
 		Message: "Success Get Match",
 		Data:    match,
 	})
-}
-
-func (m *matchController) CreateMatchController(c echo.Context) error {
-	req := payload.CreateMatchRequest{}
-
-	c.Bind(&req)
-
-	if err := c.Validate(req); err != nil {
-		return c.JSON(400, err.Error())
-	}
-
-	err := m.matchUsecase.CreateMatch(&req)
-	if err != nil {
-		return c.JSON(500, err.Error())
-	}
-
-	return c.JSON(200, payload.Response{
-		Message: "Success Create Match",
-	})
-}
-
-func (m *matchController) UpdateMatchController(c echo.Context) error {
-	req := payload.UpdateMatchRequest{}
-
-	c.Bind(&req)
-
-	if err := c.Validate(req); err != nil {
-		return c.JSON(400, err.Error())
-	}
-
-	id, _ := strconv.Atoi(c.Param("id"))
-
-	err := m.matchUsecase.UpdateMatch(&req, id)
-	if err != nil {
-		return c.JSON(500, err.Error())
-	}
-
-	return c.JSON(200, "Success Update Match")
 }

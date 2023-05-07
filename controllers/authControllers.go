@@ -43,7 +43,7 @@ func (a *authControler) LoginUserController(c echo.Context) error {
 	res, err := a.authUsecase.LoginUser(&req)
 
 	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
+		return echo.NewHTTPError(400, "Invalid Email or Password")
 	}
 
 	return c.JSON(200, payload.Response{

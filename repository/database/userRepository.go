@@ -15,6 +15,7 @@ type UserRepository interface {
 	UpdateUser(user *models.User) error
 	CreateUser(user *models.User) error
 	DeleteUser(user *models.User) error
+	CountUser() (res int64)
 }
 
 type userRepository struct {
@@ -52,6 +53,16 @@ func (u *userRepository) GetUseById(id int) (user *models.User, err error) {
 	}
 
 	return user, nil
+}
+
+func (u *userRepository) CountUser() (res int64) {
+	res = 0
+	user := []models.User{}
+
+	if err := config.DB.Model(&user).Count(&res).Error; err != nil {
+		return 0
+	}
+	return res
 }
 
 func (u *userRepository) UpdateUser(user *models.User) error {

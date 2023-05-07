@@ -39,36 +39,42 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 	matchUsecase := usecase.NewMatchUsecase(matchRepository, participationRepository)
 	matchController := controllers.NewMatchController(matchUsecase, matchRepository)
 
+	adminUsecase := usecase.NewDashboardUsecase(userRepository, turnamentRepository, matchRepository, playerRepository)
+	adminController := controllers.NewAdminControllers(adminUsecase, matchUsecase)
+
 	// Validator
 	e.Validator = &util.CustomValidator{Validator: validator.New()}
 
 	e.POST("/login", authController.LoginUserController)
 	e.POST("/register", authController.RegisterUserController)
-	// // e.GET("/logout", authController) // di kerjakan di akhir
 
-	// a := e.Group("/Dashboard/Admin", m.IsLoggedIn)
-	// a.GET("", userController.) // case 1
-	// e.GET("/turnament", turnamentController)
+	// Admin Routes
+	a := e.Group("Dashboard/Admin", m.IsLoggedIn)
+	a.GET("", adminController.DashboardAdminController)
+	a.GET("/user", adminController.GetAllUserController)
+	a.POST("/match", adminController.CreateMatchController)
+	a.PUT("/match/:id", adminController.UpdateMatchController)
 
+	// User Routes
 	pf := e.Group("/profile", m.IsLoggedIn)
 	pf.GET("", userController.GetUserController)
 	pf.PUT("", userController.UpdateUserController)
 	pf.DELETE("", userController.DeleteUserController)
 
+	// User Player Routes
 	pp := e.Group("/profile/player", m.IsLoggedIn)
-	pp.GET("", playerController.GetPlayerController)
 	pp.PUT("", playerController.UpdatePlayerController)
 
+	// Turnament Routes
 	tt := e.Group("/tournament")
 	tt.GET("", turnamentController.GetTurnamentController)
 	tt.GET("/:id", turnamentController.GetTurnamentDetailController)
 	tt.POST("", turnamentController.CreateTurnamentController)
 	tt.POST("/register", turnamentController.RegisterTurnamentController, m.IsLoggedIn)
 
+	// Match Routes
 	mm := e.Group("/match")
 	mm.GET("", matchController.GetMatchController)
 	mm.GET("/:id", matchController.GetMatchByIdController)
-	mm.POST("", matchController.CreateMatchController)
-	mm.PUT("/:id", matchController.UpdateMatchController)
 
 }

@@ -15,7 +15,7 @@ type ProfileResponse struct {
 }
 
 type PlayerResponse struct {
-	ID        uint   `json:"-"`
+	ID        uint   `json:"id"`
 	Name      string `json:"name"`
 	Age       int    `json:"age"`
 	BirthDate string `json:"birth_date"`
@@ -54,4 +54,11 @@ type TurnamentResponse struct {
 type ParticipationResponse struct {
 	PlayerID int `json:"player_id"`
 	Player   PlayerResponse
+}
+
+type DashboardAdminResponse struct {
+	TotalUser      int64 `json:"total_user"`
+	TotalPlayer    int64 `json:"total_player"`
+	TotalTurnament int64 `json:"total_turnament"`
+	TotalMatch     int64 `json:"total_match"`
 }

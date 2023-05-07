@@ -30,11 +30,15 @@ func CreateToken(userId int, role string) (string, error) {
 
 func IsAdmin(c echo.Context) (int, error) {
 	user := c.Get("user").(*jwt.Token)
+	if !user.Valid {
+		return 0, echo.NewHTTPError(401, "Unauthorized")
+	}
 	claims := user.Claims.(jwt.MapClaims)
 	if claims["role_type"] != constants.ADMIN {
 		return 0, echo.NewHTTPError(401, "Unauthorized")
 	}
 	userId := int(claims["user_id"].(float64))
+
 	return userId, nil
 }
 

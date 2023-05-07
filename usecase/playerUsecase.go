@@ -4,6 +4,7 @@ import (
 	"PongPedia/models"
 	"PongPedia/models/payload"
 	"PongPedia/repository/database"
+	"errors"
 
 	"github.com/labstack/echo"
 )
@@ -54,7 +55,7 @@ func (p *playerUsecase) UpdatePlayer(id int, req *payload.CreateUpdatePlayerRequ
 
 		err = p.playerRespository.UpdatePlayer(player)
 		if err != nil {
-			return echo.NewHTTPError(400, "Failed to update player")
+			return errors.New(err.Error())
 		}
 	} else {
 		userReq := &models.Player{
@@ -67,7 +68,7 @@ func (p *playerUsecase) UpdatePlayer(id int, req *payload.CreateUpdatePlayerRequ
 
 		err = p.playerRespository.UpdatePlayer(userReq)
 		if err != nil {
-			return echo.NewHTTPError(400, "Failed to update player")
+			return errors.New(err.Error())
 		}
 	}
 

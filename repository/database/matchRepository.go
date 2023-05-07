@@ -14,6 +14,7 @@ type MatchRepository interface {
 	CreateMatch(match *models.Match) error
 	DeleteMatch(match *models.Match) error
 	GetParticipationByTurnamentIdAndPlayerId(idT, idP int) (*models.Participation, error)
+	CountMatch() (res int64)
 }
 
 type matchRepository struct {
@@ -44,6 +45,17 @@ func (m *matchRepository) GetMatchById(id int) (*models.Match, error) {
 	}
 
 	return &match, nil
+}
+
+func (m *matchRepository) CountMatch() (res int64) {
+	res = 0
+	match := []models.Match{}
+
+	if err := config.DB.Model(&match).Count(&res).Error; err != nil {
+		return 0
+	}
+
+	return res
 }
 
 func (m *matchRepository) CreateMatch(match *models.Match) error {

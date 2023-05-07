@@ -30,9 +30,8 @@ func (p *playerController) GetPlayerController(c echo.Context) error {
 	id, _ := m.IsUser(c)
 
 	player, err := p.playerUsecase.GetPlayer(id)
-
 	if err != nil {
-		return echo.NewHTTPError(400, "Failed to read token")
+		return echo.NewHTTPError(400, err.Error())
 	}
 
 	return c.JSON(200, payload.Response{
@@ -55,7 +54,7 @@ func (p *playerController) UpdatePlayerController(c echo.Context) error {
 	err := p.playerUsecase.UpdatePlayer(id, &req)
 
 	if err != nil {
-		return echo.NewHTTPError(400, "failed to update user")
+		return echo.NewHTTPError(400, "Username already exist")
 	}
 
 	return c.JSON(200, map[string]interface{}{

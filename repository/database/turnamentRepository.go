@@ -13,6 +13,7 @@ type TurnamentRepository interface {
 	CreateTurnament(turnament *models.Turnament) error
 	DeleteTurnament(turnament *models.Turnament) error
 	UpdateTurnament(turnament *models.Turnament) error
+	CountTurnament() (res int64)
 }
 
 type turnamentRepository struct {
@@ -39,6 +40,17 @@ func (t *turnamentRepository) GetTurnamentById(id int) (turnament *models.Turnam
 	}
 
 	return turnament, nil
+}
+
+func (t *turnamentRepository) CountTurnament() (res int64) {
+	res = 0
+	turnament := []models.Turnament{}
+
+	if err := config.DB.Model(&turnament).Count(&res).Error; err != nil {
+		return 0
+	}
+
+	return res
 }
 
 func (t *turnamentRepository) CreateTurnament(turnament *models.Turnament) error {

@@ -6,7 +6,7 @@ import (
 
 type Player struct {
 	gorm.Model
-	Name          string `json:"name" form:"name"`
+	Name          string `json:"name" form:"name" gorm:"unique"`
 	Age           int    `json:"age" form:"age"`
 	BirthDate     string `json:"birth_date" form:"birth_date"`
 	Gender        string `json:"gender" form:"gender"`

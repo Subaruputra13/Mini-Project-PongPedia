@@ -34,7 +34,6 @@ func (u *userController) GetUserController(c echo.Context) error {
 	id, _ := m.IsUser(c)
 
 	res, err := u.userUsecase.GetUserById(id)
-
 	if err != nil {
 		return echo.NewHTTPError(400, err.Error())
 	}

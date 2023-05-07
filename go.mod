@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/go-faker/faker/v4 v4.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
