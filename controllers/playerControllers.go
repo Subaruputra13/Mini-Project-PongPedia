@@ -1,38 +1,63 @@
 package controllers
 
 import (
-	"PongPedia/lib/database"
-	"PongPedia/models"
-	"net/http"
+	m "PongPedia/middleware"
+	"PongPedia/models/payload"
+	"PongPedia/repository/database"
+	"PongPedia/usecase"
 
 	"github.com/labstack/echo"
 )
 
-func GetPlayersControllers(c echo.Context) error {
-	players, err := database.GetPlayer()
+type PlayerController interface {
+	GetPlayerController(c echo.Context) error
+	UpdatePlayerController(c echo.Context) error
+}
 
+type playerController struct {
+	playerUsecase     usecase.PlayerUsecase
+	playerRespository database.PlayerRespository
+}
+
+func NewPlayerController(
+	playerUsecase usecase.PlayerUsecase,
+	playerRespository database.PlayerRespository,
+) *playerController {
+	return &playerController{playerUsecase, playerRespository}
+}
+
+func (p *playerController) GetPlayerController(c echo.Context) error {
+	id, _ := m.IsUser(c)
+
+	player, err := p.playerUsecase.GetPlayer(id)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(400, err.Error())
 	}
-	return c.JSON(http.StatusOK, models.Responses{
-		Message: "Success get all players",
-		Data:    players,
+
+	return c.JSON(200, payload.Response{
+		Message: "Success get user",
+		Data:    player,
 	})
 }
 
-func CreatePlayersControllers(c echo.Context) error {
-	players := models.Player{}
+func (p *playerController) UpdatePlayerController(c echo.Context) error {
+	req := payload.CreateUpdatePlayerRequest{}
 
-	c.Bind(&players)
+	c.Bind(&req)
 
-	players, err := database.CreatePlayer(players)
+	id, _ := m.IsUser(c)
 
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(400, "Field cannot be empty")
 	}
 
-	return c.JSON(http.StatusOK, models.Responses{
-		Message: "Succes Create Player",
-		Data:    players,
+	err := p.playerUsecase.UpdatePlayer(id, &req)
+
+	if err != nil {
+		return echo.NewHTTPError(400, "Username already exist")
+	}
+
+	return c.JSON(200, map[string]interface{}{
+		"message": "Success update user",
 	})
 }

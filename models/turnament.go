@@ -1,11 +1,16 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Turnament struct {
 	gorm.Model
-	Name  string `json:"name" form:"name"`
-	Date  string `json:"date" form:"date"`
-	Type  string `json:"type" form:"type"`
-	Match []Match
+	Name          string `json:"name" form:"name"`
+	StartDate     string `json:"start_date" form:"start_date"`
+	EndDate       string `json:"end_date" form:"end_date"`
+	Location      string `json:"location" form:"location"`
+	Slot          int    `json:"slot" form:"slot"`
+	Participation []Participation
+	Match         []Match
 }

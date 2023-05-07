@@ -2,6 +2,7 @@ package config
 
 import (
 	"PongPedia/models"
+	"PongPedia/repository/seeder"
 	"fmt"
 
 	"gorm.io/driver/mysql"
@@ -18,17 +19,12 @@ type Config struct {
 	DB_Name     string
 }
 
-func Init() {
-	InitDB()
-	InitMigrate()
-}
-
-func InitDB() {
+func InitDB() *gorm.DB {
 	config := Config{
-		DB_Username: "root",
+		DB_Username: "alta",
 		DB_Password: "root",
 		DB_Port:     "3306",
-		DB_Host:     "localhost",
+		DB_Host:     "192.168.1.6",
 		DB_Name:     "pongpedia_golang",
 	}
 
@@ -41,14 +37,25 @@ func InitDB() {
 	)
 
 	var err error
-	DB, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{TranslateError: true})
+	DB, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{
+		TranslateError: true,
+	})
 
 	if err != nil {
-		panic(err)
+		panic("Failed to connect to database")
 	}
+
+	InitMigrate()
+	seeder.DBSeed(DB)
+
+	return DB
 }
 
 func InitMigrate() {
 	// Migrate the schema
-	DB.AutoMigrate(&models.User{}, &models.Turnament{}, &models.Player{})
+	err := DB.AutoMigrate(&models.User{}, &models.Player{}, &models.Turnament{}, &models.Participation{}, &models.Match{})
+
+	if err != nil {
+		panic("Failed to migrate database")
+	}
 }

@@ -4,23 +4,23 @@ import (
 	"PongPedia/constants"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
+	mid "github.com/labstack/echo/middleware"
+
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 )
 
-var IsLoggedIn = middleware.JWTWithConfig(middleware.JWTConfig{
+var IsLoggedIn = mid.JWTWithConfig(mid.JWTConfig{
 	SigningMethod: "HS256",
 	SigningKey:    []byte(constants.SCREAT_JWT),
-	TokenLookup:   "cookie:JWTCookie",
 })
 
 // Create Token Jwt
-func CreateToken(userId int, username, role string) (string, error) {
+func CreateToken(userId int, role string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["user_id"] = userId
-	claims["username"] = username
 	claims["role_type"] = role
+	claims["authorized"] = true
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -28,14 +28,30 @@ func CreateToken(userId int, username, role string) (string, error) {
 	return token.SignedString([]byte(constants.SCREAT_JWT))
 }
 
-func IsAdmin(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		user := c.Get("user").(*jwt.Token)
-		claims := user.Claims.(jwt.MapClaims)
-		IsAdmin := claims["role_type"].(string)
-		if IsAdmin == "PLAYER" {
-			return echo.ErrUnauthorized
-		}
-		return next(c)
+func IsAdmin(c echo.Context) (int, error) {
+	user := c.Get("user").(*jwt.Token)
+	if !user.Valid {
+		return 0, echo.NewHTTPError(401, "Unauthorized")
 	}
+	claims := user.Claims.(jwt.MapClaims)
+	if claims["role_type"] != constants.ADMIN {
+		return 0, echo.NewHTTPError(401, "Unauthorized")
+	}
+	userId := int(claims["user_id"].(float64))
+
+	return userId, nil
+}
+
+func IsUser(c echo.Context) (int, error) {
+	user := c.Get("user").(*jwt.Token)
+	if !user.Valid {
+		return 0, echo.NewHTTPError(401, "Unauthorized")
+	}
+	claims := user.Claims.(jwt.MapClaims)
+	if claims["role_type"] != constants.PLAYER {
+		return 0, echo.NewHTTPError(401, "Unauthorized")
+	}
+	userId := int(claims["user_id"].(float64))
+
+	return userId, nil
 }

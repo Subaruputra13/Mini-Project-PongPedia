@@ -3,15 +3,16 @@ package main
 import (
 	"PongPedia/config"
 	"PongPedia/routes"
+
+	"github.com/labstack/echo"
 )
 
 func main() {
-	// Inisialisasi Database
-	config.Init()
 
-	// Inisialisasi Echo dari package routes
-	e := routes.New()
+	db := config.InitDB()
+	e := echo.New()
 
-	// Run Server
+	routes.NewRoute(e, db)
+
 	e.Logger.Fatal(e.Start(":8080"))
 }
