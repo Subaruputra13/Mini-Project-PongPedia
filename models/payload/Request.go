@@ -33,6 +33,13 @@ type TurnamentRequest struct {
 	Location  string `json:"location" form:"location" validate:"required"`
 	Slot      int    `json:"slot" form:"slot" validate:"required"`
 }
+type UpdateTurnamentRequest struct {
+	Name      string `json:"name" form:"name"`
+	StartDate string `json:"start_date" form:"start_date"`
+	EndDate   string `json:"end_date" form:"end_date"`
+	Location  string `json:"location" form:"location"`
+	Slot      int    `json:"slot" form:"slot" `
+}
 
 type RegisterTurnamentRequest struct {
 	PlayerID    int `json:"player_id" form:"player_id"`

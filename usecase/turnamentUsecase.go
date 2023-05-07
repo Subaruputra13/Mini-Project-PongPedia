@@ -4,6 +4,7 @@ import (
 	"PongPedia/models"
 	"PongPedia/models/payload"
 	"PongPedia/repository/database"
+	"errors"
 
 	"github.com/labstack/echo"
 )
@@ -12,6 +13,7 @@ type TurnamentUsecase interface {
 	GetTurnament() ([]payload.TurnamentResponse, error)
 	GetTurnamentById(id int) (turnament *models.Turnament, err error)
 	CreateTurnament(req *payload.TurnamentRequest) (res payload.TurnamentRequest, err error)
+	UpdateTurnament(id int, req *payload.UpdateTurnamentRequest) (res payload.TurnamentResponse, err error)
 	RegisterTurnament(id int, req *payload.RegisterTurnamentRequest) error
 }
 
@@ -93,6 +95,38 @@ func (t *turnamentUsecase) CreateTurnament(req *payload.TurnamentRequest) (res p
 	return
 }
 
+func (t *turnamentUsecase) UpdateTurnament(id int, req *payload.UpdateTurnamentRequest) (res payload.TurnamentResponse, err error) {
+	_, err = t.turnamentRepository.GetTurnamentById(id)
+	if err != nil {
+		return res, errors.New("Turnament not found")
+	}
+
+	turnamentReq := &models.Turnament{
+		Name:      req.Name,
+		StartDate: req.StartDate,
+		EndDate:   req.EndDate,
+		Location:  req.Location,
+		Slot:      req.Slot,
+	}
+
+	err = t.turnamentRepository.UpdateTurnamenById(id, turnamentReq)
+	if err != nil {
+		echo.NewHTTPError(400, err.Error())
+		return
+	}
+
+	res = payload.TurnamentResponse{
+		ID:        turnamentReq.ID,
+		Name:      turnamentReq.Name,
+		StartDate: turnamentReq.StartDate,
+		EndDate:   turnamentReq.EndDate,
+		Location:  turnamentReq.Location,
+		Slot:      turnamentReq.Slot,
+	}
+
+	return
+}
+
 func (t *turnamentUsecase) RegisterTurnament(id int, req *payload.RegisterTurnamentRequest) error {
 
 	player, err := t.playerRepository.GetPlayerId(id)
@@ -121,6 +155,7 @@ func (t *turnamentUsecase) RegisterTurnament(id int, req *payload.RegisterTurnam
 		return echo.NewHTTPError(400, "Player already registered")
 	}
 
+	// Register turnament
 	err = t.particapationRepo.RegisterTurnament(regisReq)
 	if err != nil {
 		return err

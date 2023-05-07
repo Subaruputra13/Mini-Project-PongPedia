@@ -40,7 +40,7 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 	matchController := controllers.NewMatchController(matchUsecase, matchRepository)
 
 	adminUsecase := usecase.NewDashboardUsecase(userRepository, turnamentRepository, matchRepository, playerRepository)
-	adminController := controllers.NewAdminControllers(adminUsecase, matchUsecase)
+	adminController := controllers.NewAdminControllers(adminUsecase, matchUsecase, turnamentUsecase)
 
 	// Validator
 	e.Validator = &util.CustomValidator{Validator: validator.New()}
@@ -52,6 +52,8 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 	a := e.Group("Dashboard/Admin", m.IsLoggedIn)
 	a.GET("", adminController.DashboardAdminController)
 	a.GET("/user", adminController.GetAllUserController)
+	a.POST("/turnament", adminController.CreateTurnamentController)
+	a.PUT("/turnament/:id", adminController.UpdateTurnamentController)
 	a.POST("/match", adminController.CreateMatchController)
 	a.PUT("/match/:id", adminController.UpdateMatchController)
 
@@ -69,7 +71,6 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 	tt := e.Group("/tournament")
 	tt.GET("", turnamentController.GetTurnamentController)
 	tt.GET("/:id", turnamentController.GetTurnamentDetailController)
-	tt.POST("", turnamentController.CreateTurnamentController)
 	tt.POST("/register", turnamentController.RegisterTurnamentController, m.IsLoggedIn)
 
 	// Match Routes

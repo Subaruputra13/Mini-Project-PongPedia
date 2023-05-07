@@ -30,7 +30,7 @@ func (u *userUsecase) GetUserById(id int) (res payload.ProfileResponse, err erro
 	user, err := u.userRepository.GetUseById(id)
 
 	if err != nil {
-		echo.NewHTTPError(400, "Failed to get user")
+		echo.NewHTTPError(401, "This routes for user only")
 		return
 	}
 

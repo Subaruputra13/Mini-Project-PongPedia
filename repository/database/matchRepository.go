@@ -13,7 +13,8 @@ type MatchRepository interface {
 	UpdateMatch(id int, match *models.Match) error
 	CreateMatch(match *models.Match) error
 	DeleteMatch(match *models.Match) error
-	GetParticipationByTurnamentIdAndPlayerId(idT, idP int) (*models.Participation, error)
+	CheckPartisipant(idT, idP int) (*models.Participation, error)
+	Checkmatch(id1, id2 int) (*models.Match, error)
 	CountMatch() (res int64)
 }
 
@@ -85,7 +86,7 @@ func (m *matchRepository) DeleteMatch(match *models.Match) error {
 	return nil
 }
 
-func (m *matchRepository) GetParticipationByTurnamentIdAndPlayerId(idT, idP int) (*models.Participation, error) {
+func (m *matchRepository) CheckPartisipant(idT, idP int) (*models.Participation, error) {
 	participation := models.Participation{}
 
 	err := config.DB.Where("turnament_id = ? AND player_id = ?", idT, idP).First(&participation).Error
@@ -94,4 +95,15 @@ func (m *matchRepository) GetParticipationByTurnamentIdAndPlayerId(idT, idP int)
 	}
 
 	return &participation, nil
+}
+
+func (m *matchRepository) Checkmatch(id1, id2 int) (*models.Match, error) {
+	match := models.Match{}
+
+	err := config.DB.Where("player_1 = ? AND player_2 = ?", id1, id2).Or("player_2 = ? AND player_1 = ?", id1, id2).First(&match).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &match, nil
 }

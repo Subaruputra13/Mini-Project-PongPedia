@@ -35,8 +35,8 @@ func (a *authUsecase) LoginUser(req *payload.LoginRequest) (res payload.LoginRes
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
-	if err != nil {
-		echo.NewHTTPError(400, "password is wrong")
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		echo.NewHTTPError(400, err.Error())
 		return
 	}
 

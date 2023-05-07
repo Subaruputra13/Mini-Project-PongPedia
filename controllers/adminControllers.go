@@ -14,18 +14,21 @@ type AdminControllers interface {
 	GetAllUserController(c echo.Context) error
 	CreateMatchController(c echo.Context) error
 	UpdateMatchController(c echo.Context) error
+	UpdateTurnamentController(c echo.Context) error
 }
 
 type adminControllers struct {
-	adminUsecase usecase.DashboardUsecase
-	matchUsecase usecase.MatchUsecase
+	adminUsecase     usecase.DashboardUsecase
+	matchUsecase     usecase.MatchUsecase
+	turnamentUsecase usecase.TurnamentUsecase
 }
 
 func NewAdminControllers(
 	adminUsecase usecase.DashboardUsecase,
 	matchUsecase usecase.MatchUsecase,
+	turnamentUsecase usecase.TurnamentUsecase,
 ) *adminControllers {
-	return &adminControllers{adminUsecase, matchUsecase}
+	return &adminControllers{adminUsecase, matchUsecase, turnamentUsecase}
 }
 
 func (a *adminControllers) DashboardAdminController(c echo.Context) error {
@@ -59,6 +62,31 @@ func (a *adminControllers) GetAllUserController(c echo.Context) error {
 	})
 }
 
+func (a *adminControllers) CreateTurnamentController(c echo.Context) error {
+	req := payload.TurnamentRequest{}
+
+	if _, err := middleware.IsAdmin(c); err != nil {
+		return c.JSON(401, "Unauthorized")
+	}
+
+	c.Bind(&req)
+
+	if err := c.Validate(&req); err != nil {
+		return echo.NewHTTPError(400, "Field cannot be empty")
+	}
+
+	turnament, err := a.turnamentUsecase.CreateTurnament(&req)
+
+	if err != nil {
+		return echo.NewHTTPError(400, err.Error())
+	}
+
+	return c.JSON(200, payload.Response{
+		Message: "Success create turnament",
+		Data:    turnament,
+	})
+}
+
 func (a *adminControllers) CreateMatchController(c echo.Context) error {
 	req := payload.CreateMatchRequest{}
 
@@ -79,6 +107,31 @@ func (a *adminControllers) CreateMatchController(c echo.Context) error {
 
 	return c.JSON(200, payload.Response{
 		Message: "Success Create Match",
+	})
+}
+
+func (a *adminControllers) UpdateTurnamentController(c echo.Context) error {
+	req := payload.UpdateTurnamentRequest{}
+
+	if _, err := middleware.IsAdmin(c); err != nil {
+		return c.JSON(401, "Unauthorized")
+	}
+
+	c.Bind(&req)
+
+	if err := c.Validate(req); err != nil {
+		return c.JSON(400, err.Error())
+	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	res, err := a.turnamentUsecase.UpdateTurnament(id, &req)
+	if err != nil {
+		return c.JSON(500, err.Error())
+	}
+
+	return c.JSON(200, payload.Response{
+		Message: "Success Update Turnament",
+		Data:    res,
 	})
 }
 

@@ -35,7 +35,7 @@ func (u *userController) GetUserController(c echo.Context) error {
 
 	res, err := u.userUsecase.GetUserById(id)
 	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
+		return echo.NewHTTPError(400, "this routes for user only")
 	}
 
 	return c.JSON(200, payload.Response{

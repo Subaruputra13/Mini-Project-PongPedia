@@ -13,6 +13,7 @@ type TurnamentRepository interface {
 	CreateTurnament(turnament *models.Turnament) error
 	DeleteTurnament(turnament *models.Turnament) error
 	UpdateTurnament(turnament *models.Turnament) error
+	UpdateTurnamenById(id int, turnament *models.Turnament) error
 	CountTurnament() (res int64)
 }
 
@@ -64,6 +65,15 @@ func (t *turnamentRepository) CreateTurnament(turnament *models.Turnament) error
 func (t *turnamentRepository) UpdateTurnament(turnament *models.Turnament) error {
 
 	if err := config.DB.Save(&turnament).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *turnamentRepository) UpdateTurnamenById(id int, turnament *models.Turnament) error {
+
+	if err := config.DB.Where("id = ?", id).Updates(&turnament).Error; err != nil {
 		return err
 	}
 

@@ -56,13 +56,18 @@ func (m *matchUsecase) CreateMatch(req *payload.CreateMatchRequest) error {
 		TurnamentID:    req.TurnamentID,
 	}
 
+	_, err := m.matchRepository.Checkmatch(req.Player_1, req.Player_2)
+	if err == nil {
+		return echo.NewHTTPError(400, "Match already exist")
+	}
+
 	// check participation in turnament
-	_, err := m.matchRepository.GetParticipationByTurnamentIdAndPlayerId(req.TurnamentID, req.Player_1)
+	_, err = m.matchRepository.CheckPartisipant(req.TurnamentID, req.Player_1)
 	if err != nil {
 		return echo.NewHTTPError(400, "Player not participate in this turnament")
 	}
 
-	_, err = m.matchRepository.GetParticipationByTurnamentIdAndPlayerId(req.TurnamentID, req.Player_2)
+	_, err = m.matchRepository.CheckPartisipant(req.TurnamentID, req.Player_2)
 	if err != nil {
 		return echo.NewHTTPError(400, "Player not participate in this turnament")
 	}
