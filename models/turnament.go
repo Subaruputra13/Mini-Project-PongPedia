@@ -10,6 +10,7 @@ type Turnament struct {
 	StartDate     string `json:"start_date" form:"start_date"`
 	EndDate       string `json:"end_date" form:"end_date"`
 	Location      string `json:"location" form:"location"`
+	Slot          int    `json:"slot" form:"slot"`
 	Participation []Participation
 	Match         []Match
 }

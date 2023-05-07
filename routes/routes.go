@@ -35,12 +35,20 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 	turnamentUsecase := usecase.NewTurnamentUsecase(turnamentRepository, playerRepository, userRepository, participationRepository)
 	turnamentController := controllers.NewTurnamentControllers(turnamentUsecase, turnamentRepository)
 
+	matchRepository := database.NewMatchRepository(db)
+	matchUsecase := usecase.NewMatchUsecase(matchRepository, participationRepository)
+	matchController := controllers.NewMatchController(matchUsecase, matchRepository)
+
 	// Validator
 	e.Validator = &util.CustomValidator{Validator: validator.New()}
 
 	e.POST("/login", authController.LoginUserController)
 	e.POST("/register", authController.RegisterUserController)
-	// e.POST("/logout", authController.LogoutUserController)
+	// // e.GET("/logout", authController) // di kerjakan di akhir
+
+	// a := e.Group("/Dashboard/Admin", m.IsLoggedIn)
+	// a.GET("", userController.) // case 1
+	// e.GET("/turnament", turnamentController)
 
 	pf := e.Group("/profile", m.IsLoggedIn)
 	pf.GET("", userController.GetUserController)
@@ -51,10 +59,16 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 	pp.GET("", playerController.GetPlayerController)
 	pp.PUT("", playerController.UpdatePlayerController)
 
-	tt := e.Group("/tournament", m.IsLoggedIn)
+	tt := e.Group("/tournament")
 	tt.GET("", turnamentController.GetTurnamentController)
 	tt.GET("/:id", turnamentController.GetTurnamentDetailController)
 	tt.POST("", turnamentController.CreateTurnamentController)
-	tt.POST("/register", turnamentController.RegisterTurnamentController)
+	tt.POST("/register", turnamentController.RegisterTurnamentController, m.IsLoggedIn)
+
+	mm := e.Group("/match")
+	mm.GET("", matchController.GetMatchController)
+	mm.GET("/:id", matchController.GetMatchByIdController)
+	mm.POST("", matchController.CreateMatchController)
+	mm.PUT("/:id", matchController.UpdateMatchController)
 
 }

@@ -6,12 +6,13 @@ import (
 	"PongPedia/repository/database"
 
 	"github.com/labstack/echo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserUsecase interface {
-	GetUserById(id int) (*models.User, error)
+	GetUserById(id int) (res payload.ProfileResponse, err error)
 	UpdateUser(id int, req *payload.UpdateUserRequest) (res payload.UpdateUserRequest, err error)
-	CreateUser(reqs *payload.RegisterRequest) (res payload.RegisterResponse, err error)
+	CreateUser(reqs *payload.RegisterRequest) error
 	DeleteUser(id int, password string) error
 }
 
@@ -24,15 +25,42 @@ func NewUserUsecase(userRepository database.UserRepository) *userUsecase {
 }
 
 // Logic for get user with cookie
-func (u *userUsecase) GetUserById(id int) (*models.User, error) {
+func (u *userUsecase) GetUserById(id int) (res payload.ProfileResponse, err error) {
 	user, err := u.userRepository.GetUseById(id)
 
 	if err != nil {
-		return nil, echo.NewHTTPError(400, "Failed to get user")
+		echo.NewHTTPError(400, "Failed to get user")
+		return
 	}
 
-	return user, nil
+	res = payload.ProfileResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+		Password: user.Password,
+		Role:     user.Role,
+		Player: payload.PlayerResponse{
+			ID:        user.Player.ID,
+			Name:      user.Player.Name,
+			Age:       user.Player.Age,
+			BirthDate: user.Player.BirthDate,
+			Gender:    user.Player.Gender,
+		},
+	}
+
+	return res, nil
 }
+
+// // Logic for get user with cookie
+// func (u *userUsecase) GetUserById(id int) (*models.User, error) {
+// 	user, err := u.userRepository.GetUseById(id)
+
+// 	if err != nil {
+// 		return nil, echo.NewHTTPError(400, "Failed to get user")
+// 	}
+
+// 	return user, nil
+// }
 
 // Logic for update user
 func (u *userUsecase) UpdateUser(id int, req *payload.UpdateUserRequest) (res payload.UpdateUserRequest, err error) {
@@ -61,7 +89,7 @@ func (u *userUsecase) UpdateUser(id int, req *payload.UpdateUserRequest) (res pa
 }
 
 // Logic for create user
-func (u *userUsecase) CreateUser(reqs *payload.RegisterRequest) (res payload.RegisterResponse, err error) {
+func (u *userUsecase) CreateUser(reqs *payload.RegisterRequest) error {
 
 	userReq := &models.User{
 		Username: reqs.Username,
@@ -69,20 +97,19 @@ func (u *userUsecase) CreateUser(reqs *payload.RegisterRequest) (res payload.Reg
 		Password: reqs.Password,
 	}
 
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(userReq.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return echo.NewHTTPError(400, "Failed to hash password")
+	}
+
+	userReq.Password = string(passwordHash)
+
 	err = u.userRepository.CreateUser(userReq)
 	if err != nil {
-		echo.NewHTTPError(400, "Failed to create user")
-		return
+		return echo.NewHTTPError(400, "Failed to create user")
 	}
 
-	res = payload.RegisterResponse{
-		Username: userReq.Username,
-		Email:    userReq.Email,
-		Password: userReq.Password,
-		Role:     userReq.Role,
-	}
-
-	return
+	return nil
 }
 
 // Logic for Delete user

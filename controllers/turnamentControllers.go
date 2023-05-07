@@ -25,7 +25,7 @@ func NewTurnamentControllers(
 }
 
 func (t *turnamentControllers) GetTurnamentController(c echo.Context) error {
-	turnament, err := t.turnamanetUsecase.GetTurnament()
+	res, err := t.turnamanetUsecase.GetTurnament()
 
 	if err != nil {
 		return echo.NewHTTPError(400, err.Error())
@@ -33,7 +33,7 @@ func (t *turnamentControllers) GetTurnamentController(c echo.Context) error {
 
 	return c.JSON(200, payload.Response{
 		Message: "Success get turnament",
-		Data:    turnament,
+		Data:    res,
 	})
 }
 
@@ -55,9 +55,7 @@ func (t *turnamentControllers) GetTurnamentDetailController(c echo.Context) erro
 func (t *turnamentControllers) CreateTurnamentController(c echo.Context) error {
 	req := payload.TurnamentRequest{}
 
-	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(400, "Invalid input")
-	}
+	c.Bind(&req)
 
 	if err := c.Validate(&req); err != nil {
 		return echo.NewHTTPError(400, "Field cannot be empty")

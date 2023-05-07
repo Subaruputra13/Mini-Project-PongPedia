@@ -61,15 +61,14 @@ func (a *authControler) RegisterUserController(c echo.Context) error {
 		return echo.NewHTTPError(400, "Invalid Request")
 	}
 
-	res, err := a.userUsecase.CreateUser(&req)
+	err := a.userUsecase.CreateUser(&req)
 
 	if err != nil {
 		return echo.NewHTTPError(400, err.Error())
 	}
 
-	return c.JSON(200, payload.Response{
-		Message: "Success Register User",
-		Data:    res,
+	return c.JSON(200, map[string]interface{}{
+		"message": "Success Register",
 	})
 
 }

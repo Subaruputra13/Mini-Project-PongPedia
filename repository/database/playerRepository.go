@@ -8,8 +8,9 @@ import (
 )
 
 type PlayerRespository interface {
+	GetPlayer() (player []models.Player, err error)
 	UpdatePlayer(player *models.Player) error
-	GetPlayerId(id int) (*models.Player, error)
+	GetPlayerId(id int) (player *models.Player, err error)
 }
 
 type playerRespository struct {
@@ -20,14 +21,22 @@ func NewPlayerRespository(db *gorm.DB) *playerRespository {
 	return &playerRespository{db}
 }
 
-func (p *playerRespository) GetPlayerId(id int) (*models.Player, error) {
-	var player models.Player
+func (p *playerRespository) GetPlayer() (player []models.Player, err error) {
+
+	if err := config.DB.Preload("Participation").Find(&player).Error; err != nil {
+		return nil, err
+	}
+
+	return player, nil
+}
+
+func (p *playerRespository) GetPlayerId(id int) (player *models.Player, err error) {
 
 	if err := config.DB.Where("user_id = ?", id).Preload("Participation").First(&player).Error; err != nil {
 		return nil, err
 	}
 
-	return &player, nil
+	return player, nil
 }
 
 func (p *playerRespository) UpdatePlayer(player *models.Player) error {

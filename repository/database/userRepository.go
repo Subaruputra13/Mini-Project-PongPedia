@@ -38,21 +38,20 @@ func (u *userRepository) ReadToken(id int) (user *models.User, err error) {
 }
 
 func (u *userRepository) GetUser() (user []models.User, err error) {
-	if err := config.DB.Preload("Player").Find(&user).Error; err != nil {
+	if err := config.DB.Preload("Player.Participation").Find(&user).Error; err != nil {
 		return nil, err
 	}
 
 	return user, nil
 }
 
-func (u *userRepository) GetUseById(id int) (*models.User, error) {
-	var user models.User
-
-	if err := config.DB.Where("id = ?", id).Preload("Player.Participation").First(&user).Error; err != nil {
+func (u *userRepository) GetUseById(id int) (user *models.User, err error) {
+	err = config.DB.Model(&user).Preload("Player.Participation").Where("id = ?", id).First(&user).Error
+	if err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (u *userRepository) UpdateUser(user *models.User) error {

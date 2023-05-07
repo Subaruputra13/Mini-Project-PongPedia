@@ -9,8 +9,8 @@ import (
 )
 
 type TurnamentUsecase interface {
-	GetTurnament() ([]models.Turnament, error)
-	GetTurnamentById(id int) (*models.Turnament, error)
+	GetTurnament() ([]payload.TurnamentResponse, error)
+	GetTurnamentById(id int) (turnament *models.Turnament, err error)
 	CreateTurnament(req *payload.TurnamentRequest) (res payload.TurnamentRequest, err error)
 	RegisterTurnament(id int, req *payload.RegisterTurnamentRequest) error
 }
@@ -36,19 +36,32 @@ func NewTurnamentUsecase(
 	}
 }
 
-func (t *turnamentUsecase) GetTurnament() ([]models.Turnament, error) {
+func (t *turnamentUsecase) GetTurnament() ([]payload.TurnamentResponse, error) {
 	turnament, err := t.turnamentRepository.GetTurnament()
 	if err != nil {
 		return nil, err
 	}
 
-	return turnament, nil
+	res := []payload.TurnamentResponse{}
+	for _, v := range turnament {
+		res = append(res, payload.TurnamentResponse{
+			ID:        v.ID,
+			Name:      v.Name,
+			StartDate: v.StartDate,
+			EndDate:   v.EndDate,
+			Location:  v.Location,
+			Slot:      v.Slot,
+		})
+	}
+	return res, nil
 }
 
-func (t *turnamentUsecase) GetTurnamentById(id int) (*models.Turnament, error) {
-	turnament, err := t.turnamentRepository.GetTurnamentById(id)
+func (t *turnamentUsecase) GetTurnamentById(id int) (turnament *models.Turnament, err error) {
+	// Check Turnament ID
+	turnament, err = t.turnamentRepository.GetTurnamentById(id)
 	if err != nil {
-		return nil, err
+		echo.NewHTTPError(400, err.Error())
+		return
 	}
 
 	return turnament, nil
@@ -60,6 +73,7 @@ func (t *turnamentUsecase) CreateTurnament(req *payload.TurnamentRequest) (res p
 		StartDate: req.StartDate,
 		EndDate:   req.EndDate,
 		Location:  req.Location,
+		Slot:      req.Slot,
 	}
 
 	err = t.turnamentRepository.CreateTurnament(turnamentReq)
@@ -73,6 +87,7 @@ func (t *turnamentUsecase) CreateTurnament(req *payload.TurnamentRequest) (res p
 		StartDate: turnamentReq.StartDate,
 		EndDate:   turnamentReq.EndDate,
 		Location:  turnamentReq.Location,
+		Slot:      turnamentReq.Slot,
 	}
 
 	return
@@ -81,9 +96,8 @@ func (t *turnamentUsecase) CreateTurnament(req *payload.TurnamentRequest) (res p
 func (t *turnamentUsecase) RegisterTurnament(id int, req *payload.RegisterTurnamentRequest) error {
 
 	player, err := t.playerRepository.GetPlayerId(id)
-
 	if err != nil {
-		return echo.NewHTTPError(400, "Fill your player profile first")
+		return echo.NewHTTPError(400, "fill your player profile first")
 	}
 
 	regisReq := &models.Participation{
@@ -91,15 +105,31 @@ func (t *turnamentUsecase) RegisterTurnament(id int, req *payload.RegisterTurnam
 		TurnamentID: req.TurnamentID,
 	}
 
+	// Check slot availability
+	turnament, err := t.turnamentRepository.GetTurnamentById(regisReq.TurnamentID)
+	if err != nil {
+		return echo.NewHTTPError(400, "Turnament not found")
+	}
+
+	if turnament.Slot == 0 {
+		return echo.NewHTTPError(400, "Turnament slot is full")
+	}
+
 	// Check if user already registered
 	err = t.particapationRepo.CheckPartisipasion(regisReq)
-
 	if err == nil {
-		return echo.NewHTTPError(400, "You already registered")
+		return echo.NewHTTPError(400, "Player already registered")
 	}
 
 	err = t.particapationRepo.RegisterTurnament(regisReq)
+	if err != nil {
+		return err
+	}
 
+	// Update slot
+	turnament.Slot -= 1
+
+	err = t.turnamentRepository.UpdateTurnament(turnament)
 	if err != nil {
 		return err
 	}

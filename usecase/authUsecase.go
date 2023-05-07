@@ -2,11 +2,11 @@ package usecase
 
 import (
 	"PongPedia/middleware"
-	"PongPedia/models"
 	"PongPedia/models/payload"
 	"PongPedia/repository/database"
 
 	"github.com/labstack/echo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthUsecase interface {
@@ -27,37 +27,30 @@ func NewAuthUsecase(
 
 // Logic for login user
 func (a *authUsecase) LoginUser(req *payload.LoginRequest) (res payload.LoginResponse, err error) {
-	userReq := &models.User{
-		Email:    req.Email,
-		Password: req.Password,
-	}
 
-	_, err = a.userRepository.GetuserByEmail(userReq.Email)
-
+	user, err := a.userRepository.GetuserByEmail(req.Email)
 	if err != nil {
 		echo.NewHTTPError(400, "Email not registered")
 		return
 	}
 
-	err = a.authRepository.LoginUser(userReq)
-
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
-		echo.NewHTTPError(400, "Wrong password")
+		echo.NewHTTPError(400, "password is wrong")
 		return
 	}
 
-	token, err := middleware.CreateToken(int(userReq.ID), userReq.Role)
-
+	token, err := middleware.CreateToken(int(user.ID), user.Role)
 	if err != nil {
 		echo.NewHTTPError(400, "Failed to generate token")
 		return
 	}
 
-	userReq.Token = token
+	user.Token = token
 
 	res = payload.LoginResponse{
-		Email: userReq.Email,
-		Token: userReq.Token,
+		Email: user.Email,
+		Token: user.Token,
 	}
 
 	return

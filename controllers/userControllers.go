@@ -33,15 +33,15 @@ func (u *userController) GetUserController(c echo.Context) error {
 
 	id, _ := m.IsUser(c)
 
-	user, err := u.userUsecase.GetUserById(id)
+	res, err := u.userUsecase.GetUserById(id)
 
 	if err != nil {
 		return echo.NewHTTPError(400, err.Error())
 	}
 
 	return c.JSON(200, payload.Response{
-		Message: fmt.Sprintf("Welcome %s", user.Username),
-		Data:    user,
+		Message: fmt.Sprintf("Welcome %s", res.Username),
+		Data:    res,
 	})
 }
 

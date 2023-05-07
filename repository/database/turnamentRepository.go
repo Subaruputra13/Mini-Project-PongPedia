@@ -11,6 +11,8 @@ type TurnamentRepository interface {
 	GetTurnament() (turnament []models.Turnament, err error)
 	GetTurnamentById(id int) (turnament *models.Turnament, err error)
 	CreateTurnament(turnament *models.Turnament) error
+	DeleteTurnament(turnament *models.Turnament) error
+	UpdateTurnament(turnament *models.Turnament) error
 }
 
 type turnamentRepository struct {
@@ -23,7 +25,7 @@ func NewTurnamentRepository(db *gorm.DB) *turnamentRepository {
 
 func (t *turnamentRepository) GetTurnament() (turnament []models.Turnament, err error) {
 
-	if err := config.DB.Preload("Participation").Preload("Match").Find(&turnament).Error; err != nil {
+	if err := config.DB.Preload("Participation.Player").Preload("Match").Find(&turnament).Error; err != nil {
 		return nil, err
 	}
 
@@ -32,7 +34,7 @@ func (t *turnamentRepository) GetTurnament() (turnament []models.Turnament, err 
 
 func (t *turnamentRepository) GetTurnamentById(id int) (turnament *models.Turnament, err error) {
 
-	if err := config.DB.Where("id = ?", id).First(&turnament).Error; err != nil {
+	if err := config.DB.Preload("Participation.Player").Preload("Match").Where("id = ?", id).First(&turnament).Error; err != nil {
 		return nil, err
 	}
 
@@ -40,7 +42,25 @@ func (t *turnamentRepository) GetTurnamentById(id int) (turnament *models.Turnam
 }
 
 func (t *turnamentRepository) CreateTurnament(turnament *models.Turnament) error {
+	if err := config.DB.Create(&turnament).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *turnamentRepository) UpdateTurnament(turnament *models.Turnament) error {
+
 	if err := config.DB.Save(&turnament).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *turnamentRepository) DeleteTurnament(turnament *models.Turnament) error {
+
+	if err := config.DB.Delete(&turnament).Error; err != nil {
 		return err
 	}
 
