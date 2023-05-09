@@ -31,11 +31,14 @@ func NewUserController(
 
 func (u *userController) GetUserController(c echo.Context) error {
 
-	id, _ := m.IsUser(c)
+	id, err := m.IsUser(c)
+	if err != nil {
+		return echo.NewHTTPError(400, "This routes for user only")
+	}
 
 	res, err := u.userUsecase.GetUserById(id)
 	if err != nil {
-		return echo.NewHTTPError(400, "this routes for user only")
+		return echo.NewHTTPError(400, err.Error())
 	}
 
 	return c.JSON(200, payload.Response{
@@ -47,7 +50,10 @@ func (u *userController) GetUserController(c echo.Context) error {
 func (u *userController) UpdateUserController(c echo.Context) error {
 	req := payload.UpdateUserRequest{}
 
-	id, _ := m.IsUser(c)
+	id, err := m.IsUser(c)
+	if err != nil {
+		return echo.NewHTTPError(400, "this routes for user only")
+	}
 
 	c.Bind(&req)
 
@@ -67,12 +73,15 @@ func (u *userController) UpdateUserController(c echo.Context) error {
 }
 
 func (u *userController) DeleteUserController(c echo.Context) error {
-	id, _ := m.IsUser(c)
+	id, err := m.IsUser(c)
+	if err != nil {
+		return echo.NewHTTPError(400, "this routes for user only")
+	}
 
 	password := c.FormValue("Password")
 
 	if err := u.userUsecase.DeleteUser(id, password); err != nil {
-		return echo.NewHTTPError(400, "Wrong Password !")
+		return echo.NewHTTPError(400, err.Error())
 	}
 
 	return c.JSON(200, "Succes Delete User")

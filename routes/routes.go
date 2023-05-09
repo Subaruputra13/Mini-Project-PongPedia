@@ -45,8 +45,8 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 	// Validator
 	e.Validator = &util.CustomValidator{Validator: validator.New()}
 
-	e.POST("/login", authController.LoginUserController)
 	e.POST("/register", authController.RegisterUserController)
+	e.POST("/login", authController.LoginUserController)
 
 	// Admin Routes
 	a := e.Group("Dashboard/Admin", m.IsLoggedIn)

@@ -110,8 +110,9 @@ func (u *userUsecase) DeleteUser(id int, password string) error {
 		return echo.NewHTTPError(400, err.Error())
 	}
 
-	if user.Password != password {
-		return echo.NewHTTPError(400, "Wrong Password")
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		return echo.NewHTTPError(400, err.Error())
 	}
 
 	err = u.userRepository.DeleteUser(user)

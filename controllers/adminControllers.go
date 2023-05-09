@@ -145,15 +145,18 @@ func (a *adminControllers) UpdateMatchController(c echo.Context) error {
 	c.Bind(&req)
 
 	if err := c.Validate(req); err != nil {
-		return c.JSON(400, err.Error())
+		return echo.NewHTTPError(400, "Point less than 0 or more than 3")
 	}
 
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	err := a.matchUsecase.UpdateMatch(&req, id)
+	res, err := a.matchUsecase.UpdateMatch(&req, id)
 	if err != nil {
 		return c.JSON(500, err.Error())
 	}
 
-	return c.JSON(200, "Success Update Match")
+	return c.JSON(200, payload.Response{
+		Message: "Success Update Match",
+		Data:    res,
+	})
 }

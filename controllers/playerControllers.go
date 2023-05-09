@@ -45,13 +45,16 @@ func (p *playerController) UpdatePlayerController(c echo.Context) error {
 
 	c.Bind(&req)
 
-	id, _ := m.IsUser(c)
+	id, err := m.IsUser(c)
+	if err != nil {
+		return echo.NewHTTPError(400, "This routes only for user")
+	}
 
 	if err := c.Validate(&req); err != nil {
 		return echo.NewHTTPError(400, "Field cannot be empty")
 	}
 
-	err := p.playerUsecase.UpdatePlayer(id, &req)
+	err = p.playerUsecase.UpdatePlayer(id, &req)
 
 	if err != nil {
 		return echo.NewHTTPError(400, "Username already exist")

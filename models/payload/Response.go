@@ -48,7 +48,18 @@ type TurnamentResponse struct {
 	StartDate string `json:"start_date" form:"start_date"`
 	EndDate   string `json:"end_date" form:"end_date"`
 	Location  string `json:"location" form:"location"`
+	Champions string `json:"champion" form:"champion"`
 	Slot      int    `json:"slot" form:"slot"`
+}
+
+type UpdateMatchResponse struct {
+	MatchName      string `json:"match_name"`
+	MatchDate      string `json:"match_date"`
+	Player_1       int    `json:"player_1"`
+	Player_2       int    `json:"player_2"`
+	Player_1_Score int    `json:"player_1_score"`
+	Player_2_Score int    `json:"player_2_score"`
+	TurnamentID    int    `json:"turnament_id"`
 }
 
 type ParticipationResponse struct {

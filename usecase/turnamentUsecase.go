@@ -52,6 +52,7 @@ func (t *turnamentUsecase) GetTurnament() ([]payload.TurnamentResponse, error) {
 			StartDate: v.StartDate,
 			EndDate:   v.EndDate,
 			Location:  v.Location,
+			Champions: v.Champion,
 			Slot:      v.Slot,
 		})
 	}
@@ -75,6 +76,7 @@ func (t *turnamentUsecase) CreateTurnament(req *payload.TurnamentRequest) (res p
 		StartDate: req.StartDate,
 		EndDate:   req.EndDate,
 		Location:  req.Location,
+		Champion:  req.Champion,
 		Slot:      req.Slot,
 	}
 
@@ -89,6 +91,7 @@ func (t *turnamentUsecase) CreateTurnament(req *payload.TurnamentRequest) (res p
 		StartDate: turnamentReq.StartDate,
 		EndDate:   turnamentReq.EndDate,
 		Location:  turnamentReq.Location,
+		Champion:  turnamentReq.Champion,
 		Slot:      turnamentReq.Slot,
 	}
 
@@ -106,6 +109,7 @@ func (t *turnamentUsecase) UpdateTurnament(id int, req *payload.UpdateTurnamentR
 		StartDate: req.StartDate,
 		EndDate:   req.EndDate,
 		Location:  req.Location,
+		Champion:  req.Champion,
 		Slot:      req.Slot,
 	}
 
@@ -121,6 +125,7 @@ func (t *turnamentUsecase) UpdateTurnament(id int, req *payload.UpdateTurnamentR
 		StartDate: turnamentReq.StartDate,
 		EndDate:   turnamentReq.EndDate,
 		Location:  turnamentReq.Location,
+		Champions: turnamentReq.Champion,
 		Slot:      turnamentReq.Slot,
 	}
 

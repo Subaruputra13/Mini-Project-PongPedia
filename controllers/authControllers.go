@@ -58,7 +58,7 @@ func (a *authControler) RegisterUserController(c echo.Context) error {
 	c.Bind(&req)
 
 	if err := c.Validate(&req); err != nil {
-		return echo.NewHTTPError(400, "Invalid Request")
+		return echo.NewHTTPError(400, "Field cannot be empty or Password must be 6 character")
 	}
 
 	err := a.userUsecase.CreateUser(&req)

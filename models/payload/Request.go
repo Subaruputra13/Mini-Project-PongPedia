@@ -8,7 +8,7 @@ type LoginRequest struct {
 type RegisterRequest struct {
 	Username string `json:"username" form:"username" validate:"required"`
 	Email    string `json:"email" form:"email" validate:"required,email"`
-	Password string `json:"password" form:"password" validate:"required"`
+	Password string `json:"password" form:"password" validate:"gte=6"`
 	Role     string `json:"role" form:"role"`
 }
 
@@ -31,6 +31,7 @@ type TurnamentRequest struct {
 	StartDate string `json:"start_date" form:"start_date" validate:"required"`
 	EndDate   string `json:"end_date" form:"end_date" validate:"required"`
 	Location  string `json:"location" form:"location" validate:"required"`
+	Champion  string `json:"champion" form:"champion"`
 	Slot      int    `json:"slot" form:"slot" validate:"required"`
 }
 type UpdateTurnamentRequest struct {
@@ -38,6 +39,7 @@ type UpdateTurnamentRequest struct {
 	StartDate string `json:"start_date" form:"start_date"`
 	EndDate   string `json:"end_date" form:"end_date"`
 	Location  string `json:"location" form:"location"`
+	Champion  string `json:"champion" form:"champion"`
 	Slot      int    `json:"slot" form:"slot" `
 }
 
@@ -57,6 +59,6 @@ type CreateMatchRequest struct {
 }
 
 type UpdateMatchRequest struct {
-	Player_1_Score int `json:"player_1_score" form:"player_1_score"`
-	Player_2_Score int `json:"player_2_score" form:"player_2_score"`
+	Player_1_Score int `json:"player_1_score" form:"player_1_score" validate:"gte=0,lte=3"` // 0 - 3
+	Player_2_Score int `json:"player_2_score" form:"player_2_score" validate:"gte=0,lte=3"` // 0 - 3
 }

@@ -12,7 +12,7 @@ type MatchUsecase interface {
 	GetMatch() ([]models.Match, error)
 	GetMatchById(id int) (*models.Match, error)
 	CreateMatch(req *payload.CreateMatchRequest) error
-	UpdateMatch(req *payload.UpdateMatchRequest, id int) error
+	UpdateMatch(req *payload.UpdateMatchRequest, id int) (res payload.UpdateMatchResponse, err error)
 }
 
 type matchUsecase struct {
@@ -80,10 +80,11 @@ func (m *matchUsecase) CreateMatch(req *payload.CreateMatchRequest) error {
 	return nil
 }
 
-func (m *matchUsecase) UpdateMatch(req *payload.UpdateMatchRequest, id int) error {
+func (m *matchUsecase) UpdateMatch(req *payload.UpdateMatchRequest, id int) (res payload.UpdateMatchResponse, err error) {
 	match, err := m.matchRepository.GetMatchById(id)
 	if err != nil {
-		return echo.NewHTTPError(400, "Match not found")
+		echo.NewHTTPError(400, "Match not found")
+		return
 	}
 
 	match.Player_1_Score = req.Player_1_Score
@@ -91,8 +92,18 @@ func (m *matchUsecase) UpdateMatch(req *payload.UpdateMatchRequest, id int) erro
 
 	err = m.matchRepository.UpdateMatch(id, match)
 	if err != nil {
-		return err
+		return res, err
 	}
 
-	return nil
+	res = payload.UpdateMatchResponse{
+		MatchName:      match.MatchName,
+		MatchDate:      match.MatchDate,
+		Player_1:       match.Player_1,
+		Player_2:       match.Player_2,
+		Player_1_Score: match.Player_1_Score,
+		Player_2_Score: match.Player_2_Score,
+		TurnamentID:    match.TurnamentID,
+	}
+
+	return res, nil
 }
