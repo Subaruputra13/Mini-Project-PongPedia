@@ -9,7 +9,7 @@ import (
 )
 
 func UserFaker(db *gorm.DB) *models.User {
-	passwordhash, _ := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+	passwordhash, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
 	return &models.User{
 		Username: "admin",
 		Email:    "admin@gmail.com",

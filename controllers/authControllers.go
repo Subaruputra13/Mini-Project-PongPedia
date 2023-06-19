@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"PongPedia/models/payload"
-	"PongPedia/repository/database"
 	"PongPedia/usecase"
 
 	"github.com/labstack/echo"
@@ -14,19 +13,16 @@ type AuthController interface {
 }
 
 type authControler struct {
-	authUsecase    usecase.AuthUsecase
-	authRepository database.AuthRepository
-	userUsecase    usecase.UserUsecase
+	authUsecase usecase.AuthUsecase
+	userUsecase usecase.UserUsecase
 }
 
 func NewAuthController(
 	authUsecase usecase.AuthUsecase,
-	authRepository database.AuthRepository,
 	userUsecase usecase.UserUsecase,
 ) *authControler {
 	return &authControler{
 		authUsecase,
-		authRepository,
 		userUsecase,
 	}
 }
@@ -36,14 +32,16 @@ func (a *authControler) LoginUserController(c echo.Context) error {
 
 	c.Bind(&req)
 
-	if err := c.Validate(&req); err != nil {
-		return echo.NewHTTPError(400, "Field cannot be empty")
+	if err := c.Validate(req); err != nil {
+		return c.JSON(400, map[string]interface{}{
+			"message": "error payload login",
+			"error":   err.Error(),
+		})
 	}
 
 	res, err := a.authUsecase.LoginUser(&req)
-
 	if err != nil {
-		return echo.NewHTTPError(400, "Invalid Email or Password")
+		return c.JSON(400, err.Error())
 	}
 
 	return c.JSON(200, payload.Response{
@@ -57,14 +55,16 @@ func (a *authControler) RegisterUserController(c echo.Context) error {
 
 	c.Bind(&req)
 
-	if err := c.Validate(&req); err != nil {
-		return echo.NewHTTPError(400, "Invalid Request")
+	if err := c.Validate(req); err != nil {
+		return c.JSON(400, map[string]interface{}{
+			"message": "error payload login",
+			"error":   err.Error(),
+		})
 	}
 
 	err := a.userUsecase.CreateUser(&req)
-
 	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
+		return c.JSON(400, err.Error())
 	}
 
 	return c.JSON(200, map[string]interface{}{

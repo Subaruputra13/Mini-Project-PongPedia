@@ -5,13 +5,13 @@ import (
 	"PongPedia/models/payload"
 	"PongPedia/repository/database"
 	"errors"
-
-	"github.com/labstack/echo"
+	"time"
 )
 
 type PlayerUsecase interface {
-	GetPlayer(id int) (*models.Player, error)
-	UpdatePlayer(id int, req *payload.CreateUpdatePlayerRequest) error
+	GetPlayers() ([]models.Player, error)
+	GetPlayerByUserId(id uint) (player *models.Player, err error)
+	UpdatePlayer(id uint, req *payload.CreateUpdatePlayerRequest) error
 }
 
 type playerUsecase struct {
@@ -26,31 +26,35 @@ func NewPlayerUsecase(
 	return &playerUsecase{playerRespository, userRepository}
 }
 
-func (p *playerUsecase) GetPlayer(id int) (*models.Player, error) {
-
-	user, err := p.userRepository.ReadToken(id)
-
+func (p *playerUsecase) GetPlayers() (player []models.Player, err error) {
+	player, err = p.playerRespository.GetPlayer()
 	if err != nil {
-		return nil, echo.NewHTTPError(400, "Failed to read token")
-	}
-
-	player, err := p.playerRespository.GetPlayerId(int(user.ID))
-
-	if err != nil {
-		return nil, echo.NewHTTPError(400, "Failed to get player")
+		return nil, errors.New("Failed to get player")
 	}
 
 	return player, nil
 }
 
-func (p *playerUsecase) UpdatePlayer(id int, req *payload.CreateUpdatePlayerRequest) error {
+func (p *playerUsecase) GetPlayerByUserId(id uint) (player *models.Player, err error) {
+	player, err = p.playerRespository.GetPlayerUserId(id)
+	if err != nil {
+		return nil, errors.New("Failed to get player")
+	}
 
-	player, err := p.playerRespository.GetPlayerId(id)
+	return player, nil
+}
 
+func (p *playerUsecase) UpdatePlayer(id uint, req *payload.CreateUpdatePlayerRequest) error {
+	player, err := p.playerRespository.GetPlayerUserId(id)
 	if err == nil {
+		BirthDate, err := time.Parse("02/01/2006", req.BirthDate)
+		if err != nil {
+			return errors.New("Failed to parse birthdate")
+		}
+
 		player.Name = req.Name
 		player.Age = req.Age
-		player.BirthDate = req.BirthDate
+		player.BirthDate = &BirthDate
 		player.Gender = req.Gender
 
 		err = p.playerRespository.UpdatePlayer(player)
@@ -58,15 +62,20 @@ func (p *playerUsecase) UpdatePlayer(id int, req *payload.CreateUpdatePlayerRequ
 			return errors.New(err.Error())
 		}
 	} else {
+		BirthDate, err := time.Parse("02/01/2006", req.BirthDate)
+		if err != nil {
+			return errors.New("Failed to parse birthdate")
+		}
+
 		userReq := &models.Player{
 			Name:      req.Name,
 			Age:       req.Age,
-			BirthDate: req.BirthDate,
+			BirthDate: &BirthDate,
 			Gender:    req.Gender,
 			UserID:    id,
 		}
 
-		err = p.playerRespository.UpdatePlayer(userReq)
+		err = p.playerRespository.CreatePlayer(userReq)
 		if err != nil {
 			return errors.New(err.Error())
 		}

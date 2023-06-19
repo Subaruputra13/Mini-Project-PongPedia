@@ -10,7 +10,6 @@ import (
 )
 
 type PlayerController interface {
-	GetPlayerController(c echo.Context) error
 	UpdatePlayerController(c echo.Context) error
 }
 
@@ -26,18 +25,18 @@ func NewPlayerController(
 	return &playerController{playerUsecase, playerRespository}
 }
 
-func (p *playerController) GetPlayerController(c echo.Context) error {
-	id, _ := m.IsUser(c)
-
-	player, err := p.playerUsecase.GetPlayer(id)
+func (p *playerController) GetPlayerByUserIdController(c echo.Context) error {
+	userId, err := m.IsUser(c)
 	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
+		return c.JSON(400, "this routes only for user")
 	}
 
-	return c.JSON(200, payload.Response{
-		Message: "Success get user",
-		Data:    player,
-	})
+	player, err := p.playerUsecase.GetPlayerByUserId(uint(userId))
+	if err != nil {
+		return c.JSON(400, "Failed to get player")
+	}
+
+	return c.JSON(200, player)
 }
 
 func (p *playerController) UpdatePlayerController(c echo.Context) error {
@@ -45,14 +44,16 @@ func (p *playerController) UpdatePlayerController(c echo.Context) error {
 
 	c.Bind(&req)
 
-	id, _ := m.IsUser(c)
+	userId, err := m.IsUser(c)
+	if err != nil {
+		return c.JSON(400, "this routes only for user")
+	}
 
 	if err := c.Validate(&req); err != nil {
 		return echo.NewHTTPError(400, "Field cannot be empty")
 	}
 
-	err := p.playerUsecase.UpdatePlayer(id, &req)
-
+	err = p.playerUsecase.UpdatePlayer(uint(userId), &req)
 	if err != nil {
 		return echo.NewHTTPError(400, "Username already exist")
 	}

@@ -40,7 +40,7 @@ func (p *participationRepository) CheckPartisipasion(participation *models.Parti
 }
 
 func (p *participationRepository) RegisterTurnament(participan *models.Participation) error {
-	if err := config.DB.Save(&participan).Error; err != nil {
+	if err := config.DB.Create(&participan).Error; err != nil {
 		return err
 	}
 

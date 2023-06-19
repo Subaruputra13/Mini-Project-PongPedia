@@ -8,10 +8,9 @@ import (
 )
 
 type UserRepository interface {
-	ReadToken(id int) (user *models.User, err error)
 	GetUser() (user []models.User, err error)
-	GetuserByEmail(email string) (*models.User, error)
-	GetUseById(id int) (*models.User, error)
+	GetuserByEmail(email, username string) (user *models.User, err error)
+	GetUserById(id uint) (*models.User, error)
 	UpdateUser(user *models.User) error
 	CreateUser(user *models.User) error
 	DeleteUser(user *models.User) error
@@ -27,17 +26,6 @@ func NewUserRepository(db *gorm.DB) *userRepository {
 
 }
 
-func (u *userRepository) ReadToken(id int) (user *models.User, err error) {
-
-	err = config.DB.Where("id = ?", id).First(&user).Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
 func (u *userRepository) GetUser() (user []models.User, err error) {
 	if err := config.DB.Preload("Player.Participation").Find(&user).Error; err != nil {
 		return nil, err
@@ -46,9 +34,9 @@ func (u *userRepository) GetUser() (user []models.User, err error) {
 	return user, nil
 }
 
-func (u *userRepository) GetUseById(id int) (user *models.User, err error) {
-	err = config.DB.Model(&user).Preload("Player.Participation").Where("id = ?", id).First(&user).Error
-	if err != nil {
+func (u *userRepository) GetUserById(id uint) (user *models.User, err error) {
+
+	if err = config.DB.Model(&user).Preload("Player.Participation.Turnament").Where("id = ?", id).First(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -74,14 +62,13 @@ func (u *userRepository) UpdateUser(user *models.User) error {
 	return nil
 }
 
-func (u *userRepository) GetuserByEmail(email string) (*models.User, error) {
-	var user models.User
+func (u *userRepository) GetuserByEmail(email, username string) (user *models.User, err error) {
 
-	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
+	if err := config.DB.Where("email = ? OR username = ?", email, username).First(&user).Error; err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (u *userRepository) CreateUser(user *models.User) error {

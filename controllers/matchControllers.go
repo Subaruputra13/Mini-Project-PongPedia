@@ -42,7 +42,7 @@ func (m *matchController) GetMatchController(c echo.Context) error {
 
 func (m *matchController) GetMatchByIdController(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	match, err := m.matchUsecase.GetMatchById(id)
+	match, err := m.matchUsecase.GetMatchById(uint(id))
 	if err != nil {
 		return c.JSON(500, err.Error())
 	}

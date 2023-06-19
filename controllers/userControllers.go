@@ -31,11 +31,14 @@ func NewUserController(
 
 func (u *userController) GetUserController(c echo.Context) error {
 
-	id, _ := m.IsUser(c)
-
-	res, err := u.userUsecase.GetUserById(id)
+	userId, err := m.IsUser(c)
 	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
+		return c.JSON(401, "this routes is for user only")
+	}
+
+	res, err := u.userUsecase.GetUserById(uint(userId))
+	if err != nil {
+		return c.JSON(400, err.Error())
 	}
 
 	return c.JSON(200, payload.Response{
@@ -45,19 +48,25 @@ func (u *userController) GetUserController(c echo.Context) error {
 }
 
 func (u *userController) UpdateUserController(c echo.Context) error {
-	req := payload.UpdateUserRequest{}
-
-	id, _ := m.IsUser(c)
-
-	c.Bind(&req)
-
-	if err := c.Validate(&req); err != nil {
-		return echo.NewHTTPError(400, "Field cannot be empty")
+	userId, err := m.IsUser(c)
+	if err != nil {
+		return c.JSON(401, "this routes is for user only")
 	}
 
-	res, err := u.userUsecase.UpdateUser(id, &req)
+	payloadUser := payload.UpdateUserRequest{}
+
+	c.Bind(&payloadUser)
+
+	user, err := u.userUsecase.GetUserById(uint(userId))
 	if err != nil {
-		return echo.NewHTTPError(400, "failed to update user")
+		return c.JSON(400, err.Error())
+	}
+
+	c.Bind(user)
+
+	res, err := u.userUsecase.UpdateUser(user, &payloadUser)
+	if err != nil {
+		return c.JSON(400, err.Error())
 	}
 
 	return c.JSON(200, payload.Response{
@@ -67,12 +76,24 @@ func (u *userController) UpdateUserController(c echo.Context) error {
 }
 
 func (u *userController) DeleteUserController(c echo.Context) error {
-	id, _ := m.IsUser(c)
+	userId, err := m.IsUser(c)
+	if err != nil {
+		return c.JSON(401, "this routes is for user only")
+	}
 
-	password := c.FormValue("Password")
+	payloadUser := payload.DeleteUserRequest{}
 
-	if err := u.userUsecase.DeleteUser(id, password); err != nil {
-		return echo.NewHTTPError(400, "Wrong Password !")
+	c.Bind(&payloadUser)
+
+	user, err := u.userUsecase.GetUserById(uint(userId))
+	if err != nil {
+		return c.JSON(400, err.Error())
+	}
+
+	c.Bind(user)
+
+	if err := u.userUsecase.DeleteUser(user, &payloadUser); err != nil {
+		return echo.NewHTTPError(400, err.Error())
 	}
 
 	return c.JSON(200, "Succes Delete User")

@@ -9,7 +9,7 @@ import (
 
 type TurnamentRepository interface {
 	GetTurnament() (turnament []models.Turnament, err error)
-	GetTurnamentById(id int) (turnament *models.Turnament, err error)
+	GetTurnamentById(id uint) (turnament *models.Turnament, err error)
 	CreateTurnament(turnament *models.Turnament) error
 	DeleteTurnament(turnament *models.Turnament) error
 	UpdateTurnament(turnament *models.Turnament) error
@@ -33,7 +33,7 @@ func (t *turnamentRepository) GetTurnament() (turnament []models.Turnament, err 
 	return turnament, nil
 }
 
-func (t *turnamentRepository) GetTurnamentById(id int) (turnament *models.Turnament, err error) {
+func (t *turnamentRepository) GetTurnamentById(id uint) (turnament *models.Turnament, err error) {
 
 	if err := config.DB.Preload("Participation.Player").Preload("Match").Where("id = ?", id).First(&turnament).Error; err != nil {
 		return nil, err

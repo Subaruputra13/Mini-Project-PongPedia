@@ -26,9 +26,8 @@ func NewTurnamentControllers(
 
 func (t *turnamentControllers) GetTurnamentController(c echo.Context) error {
 	res, err := t.turnamanetUsecase.GetTurnament()
-
 	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
+		return c.JSON(400, err.Error())
 	}
 
 	return c.JSON(200, payload.Response{
@@ -40,10 +39,9 @@ func (t *turnamentControllers) GetTurnamentController(c echo.Context) error {
 func (t *turnamentControllers) GetTurnamentDetailController(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	turnament, err := t.turnamanetUsecase.GetTurnamentById(id)
-
+	turnament, err := t.turnamanetUsecase.GetTurnamentById(uint(id))
 	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
+		return c.JSON(400, err.Error())
 	}
 
 	return c.JSON(200, payload.Response{
@@ -52,42 +50,23 @@ func (t *turnamentControllers) GetTurnamentDetailController(c echo.Context) erro
 	})
 }
 
-func (t *turnamentControllers) CreateTurnamentController(c echo.Context) error {
-	req := payload.TurnamentRequest{}
-
-	c.Bind(&req)
-
-	if err := c.Validate(&req); err != nil {
-		return echo.NewHTTPError(400, "Field cannot be empty")
-	}
-
-	turnament, err := t.turnamanetUsecase.CreateTurnament(&req)
-
-	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
-	}
-
-	return c.JSON(200, payload.Response{
-		Message: "Success create turnament",
-		Data:    turnament,
-	})
-}
-
 func (t *turnamentControllers) RegisterTurnamentController(c echo.Context) error {
+	userId, err := m.IsUser(c)
+	if err != nil {
+		return c.JSON(400, "this routes only for user")
+	}
+
 	req := payload.RegisterTurnamentRequest{}
 
 	c.Bind(&req)
 
-	id, _ := m.IsUser(c)
-
 	if err := c.Validate(&req); err != nil {
-		return echo.NewHTTPError(400, "Field cannot be empty")
+		return c.JSON(400, "Field cannot be empty")
 	}
 
-	err := t.turnamanetUsecase.RegisterTurnament(id, &req)
-
+	err = t.turnamanetUsecase.RegisterTurnament(uint(userId), &req)
 	if err != nil {
-		return echo.NewHTTPError(400, err.Error())
+		return c.JSON(400, err.Error())
 	}
 
 	return c.JSON(200, "Success register turnament")

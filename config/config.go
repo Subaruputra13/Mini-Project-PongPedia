@@ -21,10 +21,10 @@ type Config struct {
 
 func InitDB() *gorm.DB {
 	config := Config{
-		DB_Username: "alta",
-		DB_Password: "root",
+		DB_Username: "root",
+		DB_Password: "",
 		DB_Port:     "3306",
-		DB_Host:     "192.168.1.6",
+		DB_Host:     "localhost",
 		DB_Name:     "pongpedia_golang",
 	}
 
