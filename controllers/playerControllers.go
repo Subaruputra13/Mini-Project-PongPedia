@@ -50,12 +50,12 @@ func (p *playerController) UpdatePlayerController(c echo.Context) error {
 	}
 
 	if err := c.Validate(&req); err != nil {
-		return echo.NewHTTPError(400, "Field cannot be empty")
+		return c.JSON(400, err.Error())
 	}
 
 	err = p.playerUsecase.UpdatePlayer(uint(userId), &req)
 	if err != nil {
-		return echo.NewHTTPError(400, "Username already exist")
+		return echo.NewHTTPError(400, err.Error())
 	}
 
 	return c.JSON(200, map[string]interface{}{

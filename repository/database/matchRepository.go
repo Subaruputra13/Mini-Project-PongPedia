@@ -29,7 +29,7 @@ func NewMatchRepository(db *gorm.DB) MatchRepository {
 func (m *matchRepository) GetMatch() ([]models.Match, error) {
 	match := []models.Match{}
 
-	err := config.DB.Preload("Turnament").Find(&match).Error
+	err := config.DB.Preload("Turnament").Preload("Player_1").Preload("Player_2").Find(&match).Error
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (m *matchRepository) GetMatch() ([]models.Match, error) {
 func (m *matchRepository) GetMatchById(id uint) (*models.Match, error) {
 	match := models.Match{}
 
-	err := config.DB.Preload("Turnament").Where("id = ?", id).First(&match).Error
+	err := config.DB.Preload("Turnament").Preload("Player_1").Preload("Player_2").Where("id = ?", id).First(&match).Error
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (m *matchRepository) CountMatch() (res int64) {
 }
 
 func (m *matchRepository) CreateMatch(match *models.Match) error {
-	err := config.DB.Preload("Turnament").Create(&match).Error
+	err := config.DB.Preload("Turnament").Preload("Player_1").Preload("Player_2").Create(&match).Error
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func (m *matchRepository) CreateMatch(match *models.Match) error {
 }
 
 func (m *matchRepository) UpdateMatch(match *models.Match) error {
-	err := config.DB.Preload("Turnament").Save(&match).Error
+	err := config.DB.Preload("Turnament").Preload("Player_1").Preload("Player_2").Save(&match).Error
 	if err != nil {
 		return err
 	}

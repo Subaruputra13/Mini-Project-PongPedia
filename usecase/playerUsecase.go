@@ -52,10 +52,12 @@ func (p *playerUsecase) UpdatePlayer(id uint, req *payload.CreateUpdatePlayerReq
 			return errors.New("Failed to parse birthdate")
 		}
 
-		player.Name = req.Name
+		player.FirstName = req.FirstName
+		player.LastName = req.LastName
 		player.Age = req.Age
 		player.BirthDate = &BirthDate
 		player.Gender = req.Gender
+		player.Styles = req.Styles
 
 		err = p.playerRespository.UpdatePlayer(player)
 		if err != nil {
@@ -68,10 +70,12 @@ func (p *playerUsecase) UpdatePlayer(id uint, req *payload.CreateUpdatePlayerReq
 		}
 
 		userReq := &models.Player{
-			Name:      req.Name,
+			FirstName: req.FirstName,
+			LastName:  req.LastName,
 			Age:       req.Age,
 			BirthDate: &BirthDate,
 			Gender:    req.Gender,
+			Styles:    req.Styles,
 			UserID:    id,
 		}
 

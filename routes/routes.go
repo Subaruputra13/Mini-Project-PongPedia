@@ -15,7 +15,6 @@ import (
 
 func NewRoute(e *echo.Echo, db *gorm.DB) {
 	// Middleware
-	m.LogMiddleware(e)
 	e.Pre(mid.RemoveTrailingSlash())
 	e.Use(mid.CORS())
 
@@ -47,15 +46,16 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 
 	e.POST("/login", authController.LoginUserController)
 	e.POST("/register", authController.RegisterUserController)
+	e.GET("/player", adminController.GetAllPlayersController)
 
 	// Admin Routes
 	a := e.Group("/admin", m.IsLoggedIn)
 	a.GET("/dashboard", adminController.DashboardAdminController)
 	a.GET("/user", adminController.GetAllUserController)
-	a.GET("/player", adminController.GetAllPlayersController)
 	a.POST("/match", adminController.CreateMatchController)
 	a.POST("/turnament", adminController.CreateTurnamentController)
 	a.PUT("/match/:id", adminController.UpdateMatchController)
+	a.PUT("/turnament/:id", adminController.UpdateTurnamentController)
 
 	// User Routes
 	pf := e.Group("/profile", m.IsLoggedIn)
@@ -66,7 +66,7 @@ func NewRoute(e *echo.Echo, db *gorm.DB) {
 	// User Player Routes
 	pp := e.Group("/profile/player", m.IsLoggedIn)
 	pp.GET("", playerController.GetPlayerByUserIdController)
-	pp.PUT("", playerController.UpdatePlayerController)
+	pp.PATCH("", playerController.UpdatePlayerController)
 
 	// Turnament Routes
 	tt := e.Group("/tournament")

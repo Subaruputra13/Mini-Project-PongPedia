@@ -56,28 +56,28 @@ func (m *matchUsecase) CreateMatch(req *payload.CreateMatchRequest) (match *mode
 	}
 
 	matchReq := &models.Match{
-		MatchName:      req.MatchName,
+		MatchType:      req.MatchType,
 		MatchDate:      &matchDate,
-		Player_1:       req.Player_1,
-		Player_2:       req.Player_2,
+		Player_1ID:     req.Player_1ID,
+		Player_2ID:     req.Player_2ID,
 		Player_1_Score: req.Player_1_Score,
 		Player_2_Score: req.Player_2_Score,
 		TurnamentID:    req.TurnamentID,
 	}
 
 	// check participation in turnament
-	_, err = m.matchRepository.GetParticipationByTurnamentIdAndPlayerId(req.TurnamentID, req.Player_1)
+	_, err = m.matchRepository.GetParticipationByTurnamentIdAndPlayerId(req.TurnamentID, req.Player_1ID)
 	if err != nil {
 		return nil, errors.New("Player not participate in this turnament")
 	}
 
-	_, err = m.matchRepository.GetParticipationByTurnamentIdAndPlayerId(req.TurnamentID, req.Player_2)
+	_, err = m.matchRepository.GetParticipationByTurnamentIdAndPlayerId(req.TurnamentID, req.Player_2ID)
 	if err != nil {
 		return nil, errors.New("Player not participate in this turnament")
 	}
 
 	// check if match already exist
-	_, err = m.matchRepository.GetMatchByTurnamentIdAndPlayerId(req.TurnamentID, req.Player_1, req.Player_2)
+	_, err = m.matchRepository.GetMatchByTurnamentIdAndPlayerId(req.TurnamentID, req.Player_1ID, req.Player_2ID)
 	if err == nil {
 		return nil, errors.New("Match already exist")
 	}

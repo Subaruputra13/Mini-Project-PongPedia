@@ -28,10 +28,12 @@ type ProfileResponse struct {
 
 type PlayerResponse struct {
 	ID        uint   `json:"id"`
-	Name      string `json:"name"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 	Age       int    `json:"age"`
 	BirthDate string `json:"birth_date"`
 	Gender    string `json:"gender"`
+	Style     string `json:"style"`
 	UserID    int    `json:"-"`
 }
 
@@ -51,16 +53,25 @@ type TurnamentDetailResponse struct {
 	Name          string `json:"name" form:"name"`
 	StartDate     string `json:"start_date" form:"start_date"`
 	EndDate       string `json:"end_date" form:"end_date"`
-	Location      string `json:"location" form:"location"`
+	Place         string `json:"place" `
+	Address       string `json:"address" `
+	Village       string `json:"village" `
+	Prize         uint   `json:"prize" `
+	Slot          uint   `json:"slot" `
+	Champion      string `json:"champion" `
 	Paticipations []ParticipationResponse
 }
 type TurnamentResponse struct {
-	ID        uint       `json:"id" form:"id"`
-	Name      string     `json:"name" form:"name"`
-	StartDate *time.Time `json:"start_date" form:"start_date"`
-	EndDate   *time.Time `json:"end_date" form:"end_date"`
-	Location  string     `json:"location" form:"location"`
-	Slot      uint       `json:"slot" form:"slot"`
+	ID        uint       `json:"id"`
+	Name      string     `json:"name"`
+	StartDate *time.Time `json:"start_date"`
+	EndDate   *time.Time `json:"end_date" `
+	Place     string     `json:"place" `
+	Address   string     `json:"address" `
+	Village   string     `json:"village" `
+	Prize     uint       `json:"prize" `
+	Slot      uint       `json:"slot" `
+	Champion  string     `json:"champion" `
 }
 
 type ParticipationResponse struct {

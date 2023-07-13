@@ -111,12 +111,30 @@ func (a *adminControllers) UpdateMatchController(c echo.Context) error {
 	return c.JSON(200, "Success Update Match")
 }
 
-func (a *adminControllers) GetAllPlayersController(c echo.Context) error {
+func (a *adminControllers) UpdateTurnamentController(c echo.Context) error {
+	turnamenReq := payload.UpdateTurnamentRequest{}
+
+	c.Bind(&turnamenReq)
+
 	_, err := middleware.IsAdmin(c)
 	if err != nil {
 		return c.JSON(401, "this routes is for admin only")
 	}
 
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	turnament, err := a.turnamentUsecase.UpdateTurnamentByid(uint(id), &turnamenReq)
+	if err != nil {
+		return c.JSON(400, err.Error())
+	}
+
+	return c.JSON(200, payload.Response{
+		Message: "Success update turnament",
+		Data:    turnament,
+	})
+}
+
+func (a *adminControllers) GetAllPlayersController(c echo.Context) error {
 	player, err := a.playerUsecase.GetPlayers()
 	if err != nil {
 		return echo.NewHTTPError(400, err.Error())

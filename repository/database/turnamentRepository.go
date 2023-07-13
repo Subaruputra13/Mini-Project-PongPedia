@@ -35,7 +35,7 @@ func (t *turnamentRepository) GetTurnament() (turnament []models.Turnament, err 
 
 func (t *turnamentRepository) GetTurnamentById(id uint) (turnament *models.Turnament, err error) {
 
-	if err := config.DB.Preload("Participation.Player").Preload("Match").Where("id = ?", id).First(&turnament).Error; err != nil {
+	if err := config.DB.Preload("Participation.Player").Preload("Match.Player_1").Preload("Match.Player_2").Where("id = ?", id).First(&turnament).Error; err != nil {
 		return nil, err
 	}
 
