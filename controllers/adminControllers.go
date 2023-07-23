@@ -79,7 +79,7 @@ func (a *adminControllers) CreateMatchController(c echo.Context) error {
 
 	res, err := a.matchUsecase.CreateMatch(&req)
 	if err != nil {
-		return c.JSON(500, err.Error())
+		return c.JSON(400, err.Error())
 	}
 
 	return c.JSON(200, payload.Response{

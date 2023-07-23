@@ -100,7 +100,7 @@ func (m *matchRepository) GetParticipationByTurnamentIdAndPlayerId(idT, idP uint
 func (m *matchRepository) GetMatchByTurnamentIdAndPlayerId(idT, id1, id2 uint) (*models.Match, error) {
 	match := models.Match{}
 
-	err := config.DB.Where("turnament_id = ? AND player_1 = ? AND player_2 = ?", idT, id1, id2).First(&match).Error
+	err := config.DB.Where("turnament_id = ? AND player_1_id = ? AND player_2_id = ?", idT, id1, id2).First(&match).Error
 	if err != nil {
 		return nil, err
 	}
