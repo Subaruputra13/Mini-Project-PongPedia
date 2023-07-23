@@ -15,5 +15,6 @@ func UserFaker(db *gorm.DB) *models.User {
 		Email:    "admin@gmail.com",
 		Password: string(passwordhash),
 		Role:     constants.ADMIN,
+		IsAdmin:  true,
 	}
 }

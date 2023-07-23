@@ -44,8 +44,9 @@ func (a *authUsecase) LoginUser(req *payload.LoginRequest) (res payload.LoginRes
 	user.Token = token
 
 	res = payload.LoginResponse{
-		Email: user.Email,
-		Token: user.Token,
+		Email:   user.Email,
+		Token:   user.Token,
+		IsAdmin: user.IsAdmin,
 	}
 
 	return

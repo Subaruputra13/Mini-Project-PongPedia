@@ -38,8 +38,9 @@ type PlayerResponse struct {
 }
 
 type LoginResponse struct {
-	Email string `json:"email"`
-	Token string `json:"token"`
+	Email   string `json:"email"`
+	Token   string `json:"token"`
+	IsAdmin bool   `json:"is_admin"`
 }
 
 type RegisterResponse struct {
