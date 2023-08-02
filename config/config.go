@@ -4,6 +4,7 @@ import (
 	"PongPedia/models"
 	"PongPedia/repository/seeder"
 	"fmt"
+	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -21,10 +22,10 @@ type Config struct {
 
 func InitDB() *gorm.DB {
 	config := Config{
-		DB_Username: "alta",
-		DB_Password: "root",
-		DB_Port:     "3306",
-		DB_Host:     "localhost",
+		DB_Username: os.Getenv("DB_USERNAME"),
+		DB_Password: os.Getenv("DB_PASSWORD"),
+		DB_Port:     os.Getenv("DB_PORT"),
+		DB_Host:     os.Getenv("DB_HOST"),
 		DB_Name:     "pongpedia_golang",
 	}
 

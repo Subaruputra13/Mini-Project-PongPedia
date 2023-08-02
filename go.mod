@@ -10,7 +10,10 @@ require (
 	gorm.io/gorm v1.25.0
 )
 
-require github.com/gabriel-vasile/mimetype v1.4.2 // indirect
+require (
+	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
+)
 
 require (
 	github.com/go-playground/locales v0.14.1 // indirect
