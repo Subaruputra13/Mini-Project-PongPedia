@@ -28,7 +28,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t subaruputra13/pongpedia:productions .
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/pongpedia:productions .
 
       - name: Push Docker image to Droplet
         run: |
